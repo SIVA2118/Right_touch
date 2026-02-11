@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RightTouch - Technician Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --text-dark: #1f2937;
+            --text-gray: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--white);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .auth-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .auth-input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            width: 250px;
+        }
+
+        /* --- Main Content --- */
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-gray);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* --- Components --- */
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+        }
+
+        .job-card {
+            border-left: 4px solid var(--warning);
+            margin-bottom: 1rem;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Map */
+        .map-container {
+            width: 100%;
+            height: 250px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .auth-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <i class="fas fa-user-gear"></i> Technician Portal
+        </div>
+        <div class="auth-bar">
+            <input type="text" id="token" class="auth-input" placeholder="Paste Technician JWT">
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Tracking Header (Always Visible) -->
+        <div class="card" style="border-left: 4px solid var(--primary);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                <div>
+                    <strong
+                        style="display:block; font-size:0.75rem; text-transform:uppercase; color:var(--text-gray);">📍
+                        Live Location</strong>
+                    <div id="myLocation" style="font-weight:600; margin-top:4px;">Checking...</div>
+                </div>
+                <div style="display:flex; gap:0.5rem;">
+                    <button id="btn-start-tracking" class="btn btn-danger" onclick="app.startLiveTracking()">Start Live
+                        🔴</button>
+                    <button id="btn-stop-tracking" class="btn btn-secondary hidden"
+                        onclick="app.stopLiveTracking()">Stop ⏹</button>
+                </div>
+            </div>
+            <div id="tracking-status"
+                style="margin-top:0.5rem; font-size:0.85rem; font-weight:600; color:var(--danger); text-align:right;">
+            </div>
+            <div class="map-container">
+                <iframe id="mapFrame" style="width:100%; height:100%; border:0" src="about:blank"></iframe>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="app.switchTab('new-jobs')">New Jobs</div>
+            <div id="bookingTab" class="tab" onclick="app.switchTab('my-bookings')">My Bookings</div>
+            <div class="tab" onclick="app.switchTab('wallet')">Wallet</div>
+            <div class="tab" onclick="app.switchTab('profile')">Profile</div>
+        </div>
+
+        <!-- VIEWS -->
+        <div id="new-jobs-view">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h2>Available Services</h2>
+                <button class="btn btn-primary" onclick="app.loadJobs()">Refresh Jobs</button>
+            </div>
+            <div id="jobList">
+                <p style="text-align:center; padding:3rem; color:var(--text-gray);">Enter JWT and click Refresh</p>
+            </div>
+        </div>
+
+        <div id="my-bookings-view" class="hidden">
+            <h2>Active Bookings</h2>
+            <div id="bookingList">
+                <p style="text-align:center; padding:3rem; color:var(--text-gray);">Loading bookings...</p>
+            </div>
+        </div>
+
+        <div id="wallet-view" class="hidden">
+            <h2>Earnings & Wallet</h2>
+            <div class="stats-grid">
+                <div class="stat-card" style="background: linear-gradient(135deg, #4f46e5, #818cf8);">
+                    <div style="font-size:0.9rem; opacity:0.9;">Wallet Balance</div>
+                    <div id="balanceDisplay" style="font-size:1.8rem; font-weight:700;">₹0.00</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #34d399);">
+                    <div style="font-size:0.9rem; opacity:0.9;">Total Earnings</div>
+                    <div id="earningsDisplay" style="font-size:1.8rem; font-weight:700;">₹0.00</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Request Withdrawal</h3>
+                <div style="margin-top:1rem; display:flex; gap:1rem;">
+                    <input type="number" id="withdrawAmount" class="auth-input" style="flex:1"
+                        placeholder="Amount (min ₹100)">
+                    <button class="btn btn-primary" onclick="app.requestWithdraw()">Submit</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Recent Transactions</h3>
+                <div id="txList" style="margin-top:1rem;">
+                    <p style="color:var(--text-gray);">Refresh wallet to see transactions</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="profile-view" class="hidden">
+            <h2>Technician Profile</h2>
+            <div id="profileContent" class="card">
+                <p>Loading profile...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- UI TOAST -->
+    <div id="toast"
+        style="position:fixed; bottom:2rem; right:2rem; background:#333; color:white; padding:1rem 2rem; border-radius:8px; display:none; z-index:1000;">
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:7372/api/technician';
+
+        window.app = {
+            watchId: null,
+            state: { jobs: [], bookings: [], wallet: null },
+
+            init() {
+                const savedToken = localStorage.getItem('techToken');
+                if (savedToken) {
+                    document.getElementById('token').value = savedToken;
+                    this.loadJobs();
+                }
+                document.getElementById('token').addEventListener('change', e => {
+                    localStorage.setItem('techToken', e.target.value);
+                });
+                this.fetchInitialLocation();
+            },
+
+            getToken() {
+                const t = document.getElementById('token').value.trim();
+                if (!t) { this.showToast('JWT Token Required', 'error'); return null; }
+                return t;
+            },
+
+            showToast(msg) {
+                const t = document.getElementById('toast');
+                t.innerText = msg;
+                t.style.display = 'block';
+                setTimeout(() => t.style.display = 'none', 3000);
+            },
+
+            switchTab(name) {
+                ['new-jobs', 'my-bookings', 'wallet', 'profile'].forEach(id => {
+                    document.getElementById(id + '-view').classList.add('hidden');
+                });
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+                document.getElementById(name + '-view').classList.remove('hidden');
+                event.target.classList.add('active');
+
+                if (name === 'wallet') this.loadWallet();
+                if (name === 'my-bookings') this.loadBookings();
+                if (name === 'profile') this.loadProfile();
+            },
+
+            fetchInitialLocation() {
+                navigator.geolocation.getCurrentPosition(p => {
+                    const { latitude, longitude } = p.coords;
+                    document.getElementById('myLocation').innerText = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                    document.getElementById('mapFrame').src = `https://maps.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`;
+                });
+            },
+
+            startLiveTracking() {
+                const token = this.getToken();
+                if (!token) return;
+
+                document.getElementById('btn-start-tracking').classList.add('hidden');
+                document.getElementById('btn-stop-tracking').classList.remove('hidden');
+                document.getElementById('tracking-status').innerText = '📡 LIVE TRACKING ACTIVE';
+
+                this.watchId = navigator.geolocation.watchPosition(async (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    document.getElementById('myLocation').innerText = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                    document.getElementById('mapFrame').src = `https://maps.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`;
+
+                    await fetch(`${BASE_URL}/location`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ latitude, longitude })
+                    });
+                }, err => {
+                    this.showToast('Tracking Error: ' + err.message);
+                    this.stopLiveTracking();
+                }, { enableHighAccuracy: true });
+            },
+
+            stopLiveTracking() {
+                if (this.watchId) navigator.geolocation.clearWatch(this.watchId);
+                document.getElementById('btn-start-tracking').classList.remove('hidden');
+                document.getElementById('btn-stop-tracking').classList.add('hidden');
+                document.getElementById('tracking-status').innerText = '';
+            },
+
+            async loadJobs() {
+                const token = this.getToken(); if (!token) return;
+                try {
+                    const res = await fetch(`${BASE_URL}/job-broadcast/my-jobs`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        const jobs = data.result.filter(j => ['broadcasted', 'requested'].includes(j.status));
+                        const container = document.getElementById('jobList');
+                        if (jobs.length === 0) {
+                            container.innerHTML = '<p style="text-align:center; padding:2rem;">No new jobs available.</p>';
+                        } else {
+                            container.innerHTML = jobs.map(j => `
+                                <div class="card job-card">
+                                    <div class="job-header">
+                                        <strong>${j.serviceName || 'Service Request'}</strong>
+                                        <span style="color:var(--primary); font-weight:700;">₹${j.baseAmount}</span>
+                                    </div>
+                                    <div style="font-size:0.9rem; color:var(--text-gray);">
+                                        <div><i class="fas fa-location-dot"></i> ${j.address}</div>
+                                        <div style="margin-top:0.5rem; font-family:monospace;">ID: ${j._id}</div>
+                                    </div>
+                                    <button class="btn btn-success" style="width:100%; margin-top:1rem; justify-content:center;" onclick="app.acceptJob('${j._id}')">Accept Job</button>
+                                </div>
+                            `).join('');
+                        }
+                    }
+                } catch (e) { console.error(e); }
+            },
+
+            async acceptJob(id) {
+                const token = this.getToken(); if (!token) return;
+                if (!confirm('Accept this job?')) return;
+                const res = await fetch(`${BASE_URL}/job-broadcast/respond/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ status: 'accepted' })
+                });
+                const data = await res.json();
+                if (data.success) { this.showToast('Job Accepted!'); this.loadJobs(); }
+                else { alert(data.message); }
+            },
+
+            async loadWallet() {
+                const token = this.getToken(); if (!token) return;
+                const res = await fetch(`${BASE_URL}/wallet`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('balanceDisplay').innerText = `₹${data.balance}`;
+                    document.getElementById('earningsDisplay').innerText = `₹${data.totalEarnings || 0}`;
+                    this.loadTransactions();
+                }
+            },
+
+            async loadTransactions() {
+                const token = this.getToken();
+                const res = await fetch(`${BASE_URL}/wallet/transactions`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('txList').innerHTML = data.result.slice(0, 10).map(tx => `
+                        <div style="display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid var(--border);">
+                            <div>
+                                <div style="font-weight:600; text-transform:capitalize;">${tx.type}</div>
+                                <div style="font-size:0.75rem; color:gray;">${new Date(tx.createdAt).toLocaleDateString()}</div>
+                            </div>
+                            <div style="font-weight:700; color:${tx.type === 'credit' ? 'var(--secondary)' : 'var(--danger)'}">
+                                ${tx.type === 'credit' ? '+' : '-'}₹${tx.amount}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            },
+
+            async requestWithdraw() {
+                const token = this.getToken();
+                const amount = document.getElementById('withdrawAmount').value;
+                if (amount < 100) return alert('Min ₹100');
+                const res = await fetch(`${BASE_URL}/wallet/withdraw`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ amount })
+                });
+                const data = await res.json();
+                if (data.success) { this.showToast('Withdrawal Requested'); this.loadWallet(); }
+                else { alert(data.message); }
+            },
+
+            // Other methods for bookings and profile can be added similarly
+            loadBookings() { document.getElementById('bookingList').innerHTML = '<p style="text-align:center; padding:2rem;">Work in progress...</p>'; },
+            loadProfile() { document.getElementById('profileContent').innerHTML = '<p>Role: Technician<br>Status: Verified</p>'; }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+
+</html>

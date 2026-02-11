@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technician – My Active Jobs</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --secondary: #10B981;
+            --secondary-dark: #059669;
+            --dark: #1F2937;
+            --light: #F3F4F6;
+            --white: #FFFFFF;
+            --gray: #6B7280;
+            --border: #E5E7EB;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--white);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .auth-bar {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .auth-input {
+                width: 100%;
+            }
+        }
+
+        .auth-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .auth-input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            width: 250px;
+            transition: border-color 0.2s;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            border: 1px solid var(--border);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light);
+        }
+
+        .btn-success {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: var(--secondary-dark);
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* LOCATION CARD */
+        .location-card {
+            background: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .location-info strong {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .location-val {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .location-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* SECTION HEADER */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* JOBS LIST */
+        .job-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            color: var(--gray);
+        }
+
+        .job-card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .job-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .job-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #FAFAFA;
+        }
+
+        .service-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-accepted {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .status-on_the_way {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .status-reached {
+            background: #F3E8FF;
+            color: #6B21A8;
+        }
+
+        .status-in_progress {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .status-completed {
+            background: #ECFDF5;
+            color: #047857;
+        }
+
+        .job-body {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .info-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            color: var(--dark);
+            line-height: 1.4;
+        }
+
+        .job-footer {
+            padding: 1rem 1.5rem;
+            background: #FAFAFA;
+            border-top: 1px solid var(--border);
+            text-align: right;
+        }
+
+        /* UTILS */
+        .hidden {
+            display: none !important;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            .job-body {
+                grid-template-columns: 1fr;
+            }
+
+            .location-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .location-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            🛠 Tech Dashboard
+        </div>
+        <div class="auth-bar">
+            <input type="text" id="token" class="auth-input" placeholder="Enter Technician JWT" />
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- LOCATION STATUS -->
+        <div class="location-card">
+            <div class="location-info">
+                <strong>📍 My Current Location</strong>
+                <div id="myLocation" class="location-val">Checking...</div>
+            </div>
+            <div class="location-actions">
+                <button class="btn btn-secondary" onclick="fetchMyLocation()">Refresh</button>
+                <button class="btn btn-success" onclick="updateLiveLocation()">Update Once</button>
+                <button id="btn-start-tracking" class="btn btn-danger" style="background-color:#EF4444; color:white;"
+                    onclick="startLiveTracking()">Start Live 🔴</button>
+                <button id="btn-stop-tracking" class="btn btn-secondary hidden" onclick="stopLiveTracking()">Stop
+                    Tracking ⏹</button>
+            </div>
+            <div id="tracking-status"
+                style="width:100%; margin-top:10px; font-weight:bold; color:#EF4444; text-align:right;"></div>
+        </div>
+
+        <div class="section-header">
+            <div class="section-title">My Active Jobs <span id="jobCount"
+                    style="font-size:1rem; color:var(--gray); margin-left:8px; font-weight:400">(0)</span></div>
+            <button class="btn btn-primary" onclick="loadActiveJobs()">Refresh List</button>
+        </div>
+
+        <!-- JOB LIST CONTAINER -->
+        <div id="jobList" class="job-list">
+            <div class="empty-state">
+                <h3>No jobs loaded</h3>
+                <p>Enter your JWT token above and click refresh.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT Logic (Preserved) -->
+    <script>
+        const BASE_URL = "http://localhost:7372/api/technician";
+
+        async function loadActiveJobs() {
+            const token = document.getElementById("token").value.trim();
+            if (!token) return alert("Technician JWT required");
+
+            try {
+                const res = await fetch(`${BASE_URL}/jobs/current`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                // Also fetch my location
+                fetchMyLocation();
+
+                const data = await res.json();
+                console.log("Active Jobs Response:", data);
+
+                if (!data.success) {
+                    alert(data.message);
+                    return;
+                }
+
+                document.getElementById("jobCount").innerText = `(${data.result.length})`;
+
+                const listContainer = document.getElementById("jobList");
+                listContainer.innerHTML = "";
+
+                if (data.result.length === 0) {
+                    listContainer.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No active jobs found</h3>
+                            <p>You have no assigned jobs in progress.</p>
+                        </div>`;
+                    return;
+                }
+
+                data.result.forEach(job => {
+                    // Logic for Next Status Button
+                    let nextStatus = "";
+                    let btnText = "";
+                    let btnClass = "btn-primary"; // Default Blue
+
+                    if (job.status === "accepted") {
+                        nextStatus = "on_the_way";
+                        btnText = "🚀 Start Journey";
+                        btnClass = "btn-primary";
+                    } else if (job.status === "on_the_way") {
+                        nextStatus = "reached";
+                        btnText = "📍 Arrived at Location";
+                        btnClass = "btn-warning"; // Orangeish
+                    } else if (job.status === "reached") {
+                        nextStatus = "in_progress";
+                        btnText = "▶ Start Work";
+                        btnClass = "btn-success";
+                    } else if (job.status === "in_progress") {
+                        nextStatus = "completed";
+                        btnText = "✅ Mark Completed";
+                        btnClass = "btn-success";
+                    }
+
+                    // Create Card HTML
+                    const card = document.createElement("div");
+                    card.className = "job-card";
+
+                    card.innerHTML = `
+                        <div class="job-header">
+                            <div class="service-name">${job.service?.serviceName || "Service"}</div>
+                            <span class="badge status-${job.status}">${job.status.replace(/_/g, ' ')}</span>
+                        </div>
+                        <div class="job-body">
+                            <div class="info-group">
+                                <span class="info-label">Customer</span>
+                                <span class="info-value">${job.customer?.firstName} ${job.customer?.lastName}</span>
+                            </div>
+                            <div class="info-group">
+                                <span class="info-label">Address</span>
+                                <span class="info-value">${job.address?.addressLine || "-"}</span>
+                            </div>
+                            <div class="info-group">
+                                <span class="info-label">Coordinates</span>
+                                <span class="info-value">
+                                    ${job.address?.latitude
+                            ? `<a href="https://www.google.com/maps?q=${job.address.latitude},${job.address.longitude}" target="_blank" style="color:var(--primary); text-decoration:none">
+                                            ${job.address.latitude}, ${job.address.longitude} ↗
+                                           </a>`
+                            : "-"}
+                                </span>
+                            </div>
+                            <div class="info-group">
+                                <span class="info-label">Booking ID</span>
+                                <span class="info-value" style="font-family:monospace; font-size:0.85rem; background:#f3f4f6; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block">${job.jobId}</span>
+                            </div>
+                        </div>
+                        <div class="job-footer">
+                             ${nextStatus
+                            ? `<button class="btn ${btnClass} w-full" style="justify-content:center" onclick="updateStatus('${job.jobId}', '${nextStatus}')">${btnText}</button>`
+                            : `<span style="color:var(--secondary); font-weight:600">All steps completed</span>`
+                        }
+                        </div>
+                    `;
+
+                    listContainer.appendChild(card);
+                });
+
+            } catch (e) {
+                console.error(e);
+                alert("Failed to load jobs");
+            }
+        }
+
+        async function updateStatus(jobId, status) {
+            const token = document.getElementById("token").value.trim();
+            if (!token) return alert("Technician JWT required");
+
+            if (!confirm(`Update status to ${status.replace(/_/g, ' ')}?`)) return;
+
+            try {
+                const res = await fetch(`${BASE_URL}/status/${jobId}`, {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                const data = await res.json();
+                if (!data.success) {
+                    alert(data.message);
+                    return;
+                }
+
+                // alert(`✅ Status updated to ${status}`);
+                loadActiveJobs();
+            } catch (e) {
+                console.error(e);
+                alert("Update failed");
+            }
+        }
+
+        async function fetchMyLocation() {
+            const token = document.getElementById("token").value.trim();
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${BASE_URL}/technician/me`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                const locDiv = document.getElementById("myLocation");
+                if (data.success && data.result?.location?.coordinates) {
+                    const [lng, lat] = data.result.location.coordinates;
+                    locDiv.textContent = `${lat}, ${lng}`;
+                    locDiv.style.color = "var(--secondary-dark)";
+                } else {
+                    locDiv.textContent = "Not available";
+                    locDiv.style.color = "var(--danger)";
+                }
+            } catch (err) {
+                console.error("Error fetching location:", err);
+                document.getElementById("myLocation").textContent = "Error";
+            }
+        }
+
+        function updateLiveLocation() {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by this browser.");
+                return;
+            }
+
+            const token = document.getElementById("token").value.trim();
+            if (!token) return alert("Technician JWT required");
+
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const { latitude, longitude } = position.coords;
+
+                try {
+                    const res = await fetch(`${BASE_URL}/location`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ latitude, longitude })
+                    });
+
+                    const data = await res.json();
+                    if (data.success) {
+                        alert("✅ Location updated!");
+                        fetchMyLocation();
+                        // loadActiveJobs(); // Optional: refresh jobs if needed
+                    } else {
+                        alert("❌ Update failed: " + data.message);
+                    }
+                } catch (err) {
+                    console.error("Error updating location:", err);
+                    alert("❌ Error updating location");
+                }
+            }, (error) => {
+                alert("❌ Error getting GPS location: " + error.message);
+            });
+        }
+
+        // Live Tracking Logic
+        let watchId = null;
+
+        function startLiveTracking() {
+            const token = document.getElementById("token").value.trim();
+            if (!token) return alert("Technician JWT required");
+
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by this browser.");
+                return;
+            }
+
+            if (watchId) return;
+
+            // UI Update
+            document.getElementById("btn-start-tracking").classList.add("hidden");
+            document.getElementById("btn-stop-tracking").classList.remove("hidden");
+            const statusEl = document.getElementById("tracking-status");
+            statusEl.innerText = "📡 LIVE TRACKING ACTIVE...";
+            statusEl.style.color = "#EF4444";
+
+            // Start Watch
+            watchId = navigator.geolocation.watchPosition(async (position) => {
+                const { latitude, longitude } = position.coords;
+
+                // Update Local UI
+                const locDiv = document.getElementById("myLocation");
+                locDiv.textContent = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                locDiv.style.color = "#EF4444";
+
+                // Send to Server (Silent update)
+                try {
+                    const res = await fetch(`${BASE_URL}/location`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ latitude, longitude })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        console.log(`Updated: ${latitude}, ${longitude}`);
+                        statusEl.innerText = `📡 LIVE: Last update ${new Date().toLocaleTimeString()}`;
+                    }
+                } catch (err) {
+                    console.error("Live update error:", err);
+                }
+
+            }, (error) => {
+                console.error("Watch error:", error);
+                alert("Live tracking stopped: " + error.message);
+                stopLiveTracking();
+            }, {
+                enableHighAccuracy: true,
+                maximumAge: 0
+            });
+        }
+
+        function stopLiveTracking() {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            document.getElementById("btn-start-tracking").classList.remove("hidden");
+            document.getElementById("btn-stop-tracking").classList.add("hidden");
+            document.getElementById("tracking-status").innerText = "";
+            document.getElementById("myLocation").style.color = ""; // Reset color
+        }
+    </script>
+
+</body>
+
+</html>

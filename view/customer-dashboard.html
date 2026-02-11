@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RightTouch - Customer Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #ec4899;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --text-dark: #1f2937;
+            --text-gray: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            padding-bottom: 2rem;
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--white);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .auth-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .auth-bar {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .auth-input {
+                width: 100%;
+            }
+        }
+
+        .auth-input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 250px;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-light);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .cart-badge {
+            background: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+
+        /* --- Main Content --- */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        h1,
+        h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Service Grid */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .service-card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .service-img {
+            width: 100%;
+            height: 160px;
+            background: #e5e7eb;
+            object-fit: cover;
+        }
+
+        .service-content {
+            padding: 1.5rem;
+        }
+
+        .service-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .service-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .service-desc {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-gray);
+        }
+
+        /* Cart Items */
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cart-input {
+            width: 100%;
+            padding: 0.6rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        /* Orders List */
+        .order-list {
+            margin-top: 2rem;
+        }
+
+        .order-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-requested {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .status-accepted {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .status-completed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #333;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 2000;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            padding: 0.5rem 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-gray);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <i class="fas fa-tools"></i> RightTouch
+        </div>
+        <div class="auth-bar">
+            <input type="text" id="authToken" class="auth-input" placeholder="Paste Customer Token">
+            <button class="btn btn-secondary" onclick="app.toggleOrders()">
+                <i class="fas fa-list"></i> My Orders
+            </button>
+            <button class="btn btn-primary" onclick="app.toggleCart()">
+                <i class="fas fa-shopping-cart"></i> Cart <span id="cartCount" class="cart-badge">0</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="app.switchTab('services')">Available Services</div>
+            <div class="tab" onclick="app.switchTab('orders')">My Bookings</div>
+            <div class="tab" onclick="app.switchTab('profile')">Profile</div>
+        </div>
+
+        <div id="servicesView">
+            <h2>Available Services</h2>
+            <div id="serviceList" class="service-grid">
+                <p>Loading services...</p>
+            </div>
+        </div>
+
+        <div id="ordersView" class="hidden">
+            <h2>My Bookings</h2>
+            <div id="orderList">
+                <p>Loading orders...</p>
+            </div>
+        </div>
+
+        <div id="profileView" class="hidden">
+            <h2>My Profile</h2>
+            <div id="profileContent" class="service-card" style="padding: 2rem; max-width: 600px;">
+                <p>Loading profile...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="app.toggleCart()">&times;</span>
+            <h2>Your Cart</h2>
+            <div id="cartItems">
+                <!-- Cart items here -->
+            </div>
+            <div id="checkoutForm" class="hidden">
+                <h3>Delivery Details</h3>
+
+                <!-- Saved Addresses Section -->
+                <div id="checkoutSavedAddresses"
+                    style="margin-bottom: 1.5rem; padding: 0.5rem; background: #f9fafb; border-radius: 8px; border: 1px solid var(--border);">
+                    <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Select
+                        from Saved Addresses</label>
+                    <div id="savedAddressOptions"
+                        style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 150px; overflow-y: auto;">
+                        <p style="font-size: 0.8rem; color: gray;">Loading saved addresses...</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label style="font-weight: 600;">Or Enter Manually</label>
+                </div>
+
+                <input type="text" id="checkoutName" class="cart-input" placeholder="Full Name">
+                <input type="text" id="checkoutPhone" class="cart-input" placeholder="Phone Number">
+                <input type="text" id="checkoutAddress" class="cart-input" placeholder="Address Line">
+                <input type="text" id="checkoutCity" class="cart-input" placeholder="City">
+                <div style="display: flex; gap: 1rem;">
+                    <input type="text" id="checkoutState" class="cart-input" placeholder="State">
+                    <input type="text" id="checkoutPincode" class="cart-input" placeholder="Pincode">
+                </div>
+
+                <!-- Location Map -->
+                <div style="margin-bottom: 1rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                        <label style="font-weight:600;">Delivery Location</label>
+                        <button class="btn btn-secondary" onclick="app.getCurrentLocation()" type="button"
+                            style="font-size:0.8rem; padding:0.3rem 0.8rem;">
+                            <i class="fas fa-location-arrow"></i> Get My Location
+                        </button>
+                    </div>
+                    <div id="locationStatus"
+                        style="font-size:0.8rem; color:var(--text-gray); margin-bottom:0.5rem; text-align:right;"></div>
+                    <iframe id="mapFrame"
+                        style="width:100%; height:200px; border:0; border-radius:8px; background:#e5e7eb;"
+                        src="about:blank"></iframe>
+                </div>
+                <!-- Hidden inputs for validation -->
+                <input type="hidden" id="checkoutLat" value="12.9716">
+                <input type="hidden" id="checkoutLng" value="77.5946">
+
+                <button class="btn btn-primary" style="width: 100%" onclick="app.placeOrder()">Confirm Order</button>
+            </div>
+            <div id="cartActions" style="margin-top: 1rem; text-align: right;">
+                <button class="btn btn-primary" onclick="app.showCheckout()">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Details Modal -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="app.closeServiceModal()">&times;</span>
+            <div id="serviceDetailsContent">Loading...</div>
+        </div>
+    </div>
+
+
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="app.closeEditProfile()">&times;</span>
+            <h2>Edit Profile</h2>
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+                <input type="text" id="editFname" class="cart-input" placeholder="First Name" style="margin:0">
+                <input type="text" id="editLname" class="cart-input" placeholder="Last Name" style="margin:0">
+                <input type="email" id="editEmail" class="cart-input" placeholder="Email" style="margin:0">
+                <select id="editGender" class="cart-input" style="margin:0">
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+                <button class="btn btn-primary" style="width:100%" onclick="app.updateProfile()">Update
+                    Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Address Modal -->
+    <div id="addressModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="app.closeAddressModal()">&times;</span>
+            <h2>Add New Address</h2>
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                <input type="text" id="addrLabel" class="cart-input" placeholder="Label (e.g., Home, Work)"
+                    style="margin:0">
+                <input type="text" id="addrName" class="cart-input" placeholder="Contact Name" style="margin:0">
+                <input type="text" id="addrPhone" class="cart-input" placeholder="Contact Phone" style="margin:0">
+                <input type="text" id="addrLine" class="cart-input" placeholder="Address Line" style="margin:0">
+                <input type="text" id="addrCity" class="cart-input" placeholder="City" style="margin:0">
+                <div style="display:flex; gap:1rem;">
+                    <input type="text" id="addrState" class="cart-input" placeholder="State" style="margin:0">
+                    <input type="text" id="addrPincode" class="cart-input" placeholder="Pincode" style="margin:0">
+                </div>
+                <input type="hidden" id="addrLat">
+                <input type="hidden" id="addrLng">
+
+                <div style="background:#f3f4f6; padding:0.5rem; border-radius:6px; margin-top:0.5rem;">
+                    <button class="btn btn-secondary" style="width:100%; font-size:0.9rem;"
+                        onclick="app.getAddrLocation()">
+                        <i class="fas fa-location-arrow"></i> Fetch GPS Location
+                    </button>
+                    <div id="addrLocStatus" style="font-size:0.8rem; margin-top:0.5rem; text-align:center; color:gray;">
+                    </div>
+                </div>
+
+                <iframe id="addrMapFrame"
+                    style="width:100%; height:180px; border:0; border-radius:8px; background:#e5e7eb; margin-top:0.5rem;"
+                    src="about:blank"></iframe>
+
+                <button class="btn btn-primary" style="width:100%; margin-top:1rem;" onclick="app.saveAddress()">Save
+                    Address</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Action Successful</div>
+
+    <script>
+        const BASE_URL = 'http://localhost:7372/api';
+
+        // Expose app globally for inline onclick handlers
+        window.app = {
+            services: [],
+            cart: [],
+            profile: null,
+
+            init() {
+                // Check local storage for token if exists
+                const savedToken = localStorage.getItem('customerToken');
+                if (savedToken) {
+                    document.getElementById('authToken').value = savedToken;
+                    this.fetchCart();
+                }
+
+                // Fetch services regardless of auth
+                this.fetchServices();
+
+                // Add listener to token input
+                document.getElementById('authToken').addEventListener('change', (e) => {
+                    localStorage.setItem('customerToken', e.target.value);
+                    this.fetchCart();
+                });
+            },
+
+            getToken() {
+                const token = document.getElementById('authToken').value;
+                if (!token) {
+                    this.showToast('Please enter a valid Customer Token');
+                    return null;
+                }
+                return token;
+            },
+
+            switchTab(tabName) {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+                if (tabName === 'services') {
+                    document.querySelectorAll('.tab')[0].classList.add('active');
+                    document.getElementById('servicesView').classList.remove('hidden');
+                    document.getElementById('ordersView').classList.add('hidden');
+                    document.getElementById('profileView').classList.add('hidden');
+                } else if (tabName === 'orders') {
+                    document.querySelectorAll('.tab')[1].classList.add('active');
+                    document.getElementById('servicesView').classList.add('hidden');
+                    document.getElementById('ordersView').classList.remove('hidden');
+                    document.getElementById('profileView').classList.add('hidden');
+                    this.fetchOrders();
+                } else if (tabName === 'profile') {
+                    document.querySelectorAll('.tab')[2].classList.add('active');
+                    document.getElementById('servicesView').classList.add('hidden');
+                    document.getElementById('ordersView').classList.add('hidden');
+                    document.getElementById('profileView').classList.remove('hidden');
+                    this.fetchProfile();
+                }
+            },
+
+            async fetchServices() {
+                try {
+                    // Try User route first, fall back if needed or assume public? 
+                    // Usually getting services is public, but let's check
+                    // User.js: router.get("/getAllServices", getAllServices); -> Public? No middleware listed!
+                    const res = await fetch(`${BASE_URL}/user/getAllServices`);
+                    const data = await res.json();
+
+                    if (data.success) {
+                        this.services = data.result.services || [];
+                        this.renderServices();
+                    } else {
+                        document.getElementById('serviceList').innerHTML = '<p>No active services found.</p>';
+                    }
+                } catch (err) {
+                    console.error('Error fetching services:', err);
+                    document.getElementById('serviceList').innerHTML = '<p>Error loading services.</p>';
+                }
+            },
+
+            renderServices() {
+                const container = document.getElementById('serviceList');
+                if (!this.services.length) {
+                    container.innerHTML = '<p>No services available at the moment.</p>';
+                    return;
+                }
+
+                container.innerHTML = this.services.map(service => `
+                    <div class="service-card">
+                        <img src="${service.serviceImages?.[0] || 'https://placehold.co/300x200?text=Service'}" class="service-img" alt="${service.serviceName}">
+                        <div class="service-content">
+                            <h3 class="service-title">${service.serviceName}</h3>
+                            <div class="service-price">₹${service.serviceCost}</div>
+                            <p class="service-desc">${service.description || 'No description available'}</p>
+                            <button class="btn btn-secondary" onclick="app.viewService('${service._id}')">
+                                <i class="fas fa-eye"></i> Details
+                            </button>
+                            <button class="btn btn-primary" onclick="app.addToCart('${service._id}')">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            async addToCart(serviceId) {
+                const token = this.getToken();
+                if (!token) return;
+
+                try {
+                    const res = await fetch(`${BASE_URL}/user/cart/add`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            itemType: 'service',
+                            itemId: serviceId,
+                            quantity: 1
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.showToast('Added to Cart!');
+                        this.fetchCart();
+                    } else {
+                        this.showToast(data.message);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            },
+
+            async fetchCart() {
+                const token = this.getToken();
+                if (!token) return;
+
+                try {
+                    const res = await fetch(`${BASE_URL}/user/cart/my-cart`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.cart = data.result || [];
+                        this.updateCartUI();
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            },
+
+            updateCartUI() {
+                document.getElementById('cartCount').innerText = this.cart.length;
+                const container = document.getElementById('cartItems');
+
+                if (this.cart.length === 0) {
+                    container.innerHTML = '<p class="text-center text-gray-500">Your cart is empty.</p>';
+                    document.getElementById('cartActions').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('cartActions').style.display = 'block';
+                // Handle populated items safely
+                container.innerHTML = this.cart.map(item => {
+                    // item.item is the populated product/service object
+                    const name = item.item?.serviceName || item.item?.productName || 'Unknown Item';
+                    return `
+                    <div class="cart-item">
+                        <div>
+                            <strong>${name}</strong>
+                            <div class="text-sm text-gray-500">Qty: ${item.quantity}</div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="app.removeFromCart('${item._id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `}).join('');
+            },
+
+            async removeFromCart(cartItemId) {
+                const token = this.getToken();
+                if (!token) return;
+
+                try {
+                    await fetch(`${BASE_URL}/user/cart/remove/${cartItemId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    this.fetchCart();
+                } catch (err) {
+                    console.error(err);
+                }
+            },
+
+            toggleCart() {
+                const modal = document.getElementById('cartModal');
+
+                if (!modal.classList.contains('active')) {
+                    modal.classList.add('active');
+                    this.fetchCart(); // Refresh on open
+                    // Reset view to list
+                    document.getElementById('checkoutForm').classList.add('hidden');
+                    document.getElementById('cartItems').classList.remove('hidden');
+                    if (this.cart.length > 0) {
+                        document.getElementById('cartActions').style.display = 'block';
+                    }
+                } else {
+                    modal.classList.remove('active');
+                }
+            },
+
+            showCheckout() {
+                document.getElementById('cartItems').classList.add('hidden');
+                document.getElementById('cartActions').style.display = 'none';
+                document.getElementById('checkoutForm').classList.remove('hidden');
+                // Load saved addresses for selection
+                this.loadCheckoutAddresses();
+                // Auto fetch location
+                this.getCurrentLocation();
+            },
+
+            async loadCheckoutAddresses() {
+                const token = this.getToken();
+                if (!token) return;
+                const container = document.getElementById('savedAddressOptions');
+                try {
+                    const res = await fetch(`${BASE_URL}/addresses`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (data.success && data.result.length > 0) {
+                        this.savedAddresses = data.result;
+                        container.innerHTML = data.result.map(addr => `
+                            <div onclick="app.fillCheckoutAddress('${addr._id}')" 
+                                 style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s;"
+                                 onmouseover="this.style.borderColor='var(--primary)'" 
+                                 onmouseout="this.style.borderColor='var(--border)'">
+                                <div style="font-weight: 600; font-size: 0.85rem;">${addr.label} (${addr.name})</div>
+                                <div style="font-size: 0.75rem; color: gray; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    ${addr.addressLine}, ${addr.city}
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        container.innerHTML = '<p style="font-size: 0.8rem; color: gray;">No saved addresses found.</p>';
+                    }
+                } catch (e) {
+                    container.innerHTML = '<p style="font-size: 0.8rem; color: red;">Error loading addresses.</p>';
+                }
+            },
+
+            fillCheckoutAddress(addrId) {
+                const addr = this.savedAddresses.find(a => a._id === addrId);
+                if (!addr) return;
+
+                document.getElementById('checkoutName').value = addr.name || '';
+                document.getElementById('checkoutPhone').value = addr.phone || '';
+                document.getElementById('checkoutAddress').value = addr.addressLine || '';
+                document.getElementById('checkoutCity').value = addr.city || '';
+                document.getElementById('checkoutState').value = addr.state || '';
+                document.getElementById('checkoutPincode').value = addr.pincode || '';
+                document.getElementById('checkoutLat').value = addr.latitude || '';
+                document.getElementById('checkoutLng').value = addr.longitude || '';
+
+                // Update Map
+                if (addr.latitude && addr.longitude) {
+                    document.getElementById('mapFrame').src = `https://maps.google.com/maps?q=${addr.latitude},${addr.longitude}&z=15&output=embed`;
+                    document.getElementById('locationStatus').innerText = `Location set from saved: ${addr.latitude}, ${addr.longitude}`;
+                    document.getElementById('locationStatus').style.color = "green";
+                }
+
+                this.showToast('Address filled from saved!');
+            },
+
+            async placeOrder() {
+                const token = this.getToken();
+                if (!token) return;
+
+                const name = document.getElementById('checkoutName').value;
+                const phone = document.getElementById('checkoutPhone').value;
+                const addressLine = document.getElementById('checkoutAddress').value;
+
+                if (!name || !phone || !addressLine) {
+                    this.showToast("Please fill all details");
+                    return;
+                }
+
+                const payload = {
+                    address: {
+                        addressLine: addressLine,
+                        city: document.getElementById('checkoutCity').value,
+                        state: document.getElementById('checkoutState').value,
+                        pincode: document.getElementById('checkoutPincode').value,
+                        name: name,
+                        phone: phone
+                    },
+                    // Added top-level Lat/Lng as per controller requirement
+                    latitude: parseFloat(document.getElementById('checkoutLat').value),
+                    longitude: parseFloat(document.getElementById('checkoutLng').value),
+                    locationType: "Home"
+                };
+
+                try {
+                    const res = await fetch(`${BASE_URL}/user/checkout`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        this.showToast('Order Placed Successfully!');
+                        this.cart = []; // clear local cart
+                        this.updateCartUI();
+                        this.toggleCart(); // close modal
+                    } else {
+                        console.error('Checkout failed:', data);
+                        alert(`Order Failed: ${data.message || 'Unknown error'}\nReason: ${JSON.stringify(data.result?.reason || data.result)}`);
+                        this.showToast(data.message);
+                    }
+                } catch (err) {
+                    this.showToast('Error placing order');
+                    console.error(err);
+                }
+            },
+
+            toggleOrders() {
+                // Deprecated - switching to tabs
+                this.switchTab('orders');
+            },
+
+            async fetchOrders() {
+                const token = this.getToken();
+                if (!token) return;
+
+                try {
+                    const res = await fetch(`${BASE_URL}/user/booking/getCustomerBookings`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    const data = await res.json();
+                    if (data.success) {
+                        this.orders = data.result;
+                        this.renderOrders();
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            },
+
+            renderOrders() {
+                const container = document.getElementById('orderList');
+                if (!this.orders || this.orders.length === 0) {
+                    container.innerHTML = '<p>No orders found.</p>';
+                    return;
+                }
+
+                container.innerHTML = this.orders.map(order => {
+                    // Order structure might vary. Service bookings are usually flat or inside array.
+                    // Based on getBookings controller, it returns array of bookings.
+                    // Each booking has serviceId (populated), status, scheduledAt, etc.
+                    const serviceName = order.serviceId?.serviceName || 'Service Booking';
+                    const date = order.scheduledAt ? new Date(order.scheduledAt).toLocaleDateString() : 'Pending Date';
+                    const statusClass = order.status ? `status-${order.status.toLowerCase()}` : '';
+
+                    // Show Pay button only if status is REQUESTED or ACCEPTED and payment is pending (logic can vary)
+                    // For now, let's allow it for 'requested' and 'accepted'
+                    const canPay = ['requested', 'accepted'].includes(order.status?.toLowerCase());
+
+                    return `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <strong>${serviceName}</strong>
+                                <div style="font-size:0.8rem; color:gray">#${order.bookingId || order._id.slice(-6)}</div>
+                            </div>
+                            <span class="status-badge ${statusClass}">${order.status || 'Unknown'}</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #4b5563; margin-top: 0.5rem;">
+                            Date: ${date} <br>
+                            Amount: ₹${order.baseAmount || order.amount || 0}
+                        </div>
+                        ${canPay ? `
+                        <button class="btn btn-primary" style="width:100%; margin-top:1rem; background:#10B981;" onclick="app.startPayment('${order.bookingId || order._id}')">
+                            <i class="fas fa-credit-card"></i> Pay Now
+                        </button>
+                        ` : ''}
+                    </div>
+                `}).join('');
+            },
+
+            async fetchProfile() {
+                const token = this.getToken();
+                if (!token) return;
+
+                try {
+                    const res = await fetch(`${BASE_URL}/user/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.profile = data.result;
+                        this.renderProfile();
+                    } else {
+                        document.getElementById('profileContent').innerHTML = '<p>Failed to load profile.</p>';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    document.getElementById('profileContent').innerHTML = '<p>Error loading profile.</p>';
+                }
+            },
+
+            renderProfile() {
+                const p = this.profile;
+                if (!p) return;
+
+                document.getElementById('profileContent').innerHTML = `
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem;">
+                            <div style="display:flex; align-items:center; gap:1rem;">
+                                <div style="width:60px; height:60px; background:#e0e7ff; color:var(--primary); display:flex; align-items:center; justify-content:center; border-radius:50%; font-size:1.5rem;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin:0;">${p.fname || ''} ${p.lname || ''}</h3>
+                                    <div style="color:gray; font-size:0.9rem;">${p.role || 'Customer'}</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" onclick="app.openEditProfile()">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+
+                        <div style="display:grid; gap:1rem; margin-bottom:2rem;">
+                            <div style="padding:1rem; background:#f9fafb; border-radius:8px;">
+                                <div style="font-size:0.8rem; color:gray; margin-bottom:0.2rem;">Mobile Number</div>
+                                <div style="font-weight:600;">${p.mobileNumber || 'N/A'}</div>
+                            </div>
+                            <div style="padding:1rem; background:#f9fafb; border-radius:8px;">
+                                <div style="font-size:0.8rem; color:gray; margin-bottom:0.2rem;">Email Address</div>
+                                <div style="font-weight:600;">${p.email || 'N/A'}</div>
+                            </div>
+                            <div style="padding:1rem; background:#f9fafb; border-radius:8px;">
+                                <div style="font-size:0.8rem; color:gray; margin-bottom:0.2rem;">Account Status</div>
+                                <div style="font-weight:600; color:${p.status === 'Active' ? 'green' : 'red'}">
+                                    ${p.status || 'Unknown'}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="border-top:1px solid #e5e7eb; padding-top:1.5rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                                <h3>Saved Addresses</h3>
+                                <button class="btn btn-secondary" style="font-size:0.8rem;" onclick="app.openAddAddress()">
+                                    <i class="fas fa-plus"></i> Add New
+                                </button>
+                            </div>
+                            <div id="addressList">Loading addresses...</div>
+                        </div>
+                    `;
+
+                this.fetchAddresses();
+            },
+
+            openEditProfile() {
+                const p = this.profile;
+                document.getElementById('editFname').value = p.fname || '';
+                document.getElementById('editLname').value = p.lname || '';
+                document.getElementById('editEmail').value = p.email || '';
+                document.getElementById('editGender').value = p.gender || '';
+                document.getElementById('editProfileModal').classList.add('active');
+            },
+
+            closeEditProfile() {
+                document.getElementById('editProfileModal').classList.remove('active');
+            },
+
+            async updateProfile() {
+                const token = this.getToken();
+                if (!token) return;
+
+                const payload = {
+                    fname: document.getElementById('editFname').value,
+                    lname: document.getElementById('editLname').value,
+                    email: document.getElementById('editEmail').value,
+                    gender: document.getElementById('editGender').value
+                };
+
+                try {
+                    const res = await fetch(`${BASE_URL}/user/me`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.showToast('Profile Updated!');
+                        this.closeEditProfile();
+                        this.fetchProfile();
+                    } else {
+                        alert(data.message);
+                    }
+                } catch (e) { console.error(e); }
+            },
+
+            // Address Management
+            async fetchAddresses() {
+                const token = this.getToken();
+                if (!token) return;
+                try {
+                    const res = await fetch(`${BASE_URL}/addresses`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.renderAddresses(data.result);
+                    }
+                } catch (e) { console.error(e); }
+            },
+
+            renderAddresses(addresses) {
+                const container = document.getElementById('addressList');
+                if (!addresses || addresses.length === 0) {
+                    container.innerHTML = '<p style="color:gray; font-size:0.9rem;">No saved addresses.</p>';
+                    return;
+                }
+                container.innerHTML = addresses.map(addr => `
+                        <div style="background:#f9fafb; padding:1rem; border-radius:8px; margin-bottom:0.5rem; position:relative;">
+                            <div style="font-weight:600; margin-bottom:0.2rem;">${addr.label} (${addr.name})</div>
+                            <div style="font-size:0.9rem; color:gray;">${addr.addressLine}, ${addr.city}, ${addr.state} - ${addr.pincode}</div>
+                            <div style="font-size:0.8rem; color:gray;">Phone: ${addr.phone}</div>
+                            
+                            <button onclick="app.deleteAddress('${addr._id}')" style="position:absolute; top:1rem; right:1rem; color:red; border:none; background:none; cursor:pointer;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `).join('');
+            },
+
+            openAddAddress() {
+                document.getElementById('addressModal').classList.add('active');
+            },
+
+            closeAddressModal() {
+                document.getElementById('addressModal').classList.remove('active');
+            },
+
+            getAddrLocation() {
+                const status = document.getElementById('addrLocStatus');
+                const mapFrame = document.getElementById('addrMapFrame');
+                if (!navigator.geolocation) { status.innerText = "Geo not supported"; return; }
+                status.innerText = "Locating...";
+                navigator.geolocation.getCurrentPosition(pos => {
+                    const { latitude, longitude } = pos.coords;
+                    document.getElementById('addrLat').value = latitude;
+                    document.getElementById('addrLng').value = longitude;
+                    status.innerText = `GPS Set: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+                    status.style.color = 'green';
+
+                    // Update Map
+                    mapFrame.src = `https://maps.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`;
+                }, err => {
+                    status.innerText = "Location denied";
+                    status.style.color = 'red';
+                });
+            },
+
+            async saveAddress() {
+                const token = this.getToken();
+                if (!token) return;
+
+                const payload = {
+                    label: document.getElementById('addrLabel').value,
+                    name: document.getElementById('addrName').value,
+                    phone: document.getElementById('addrPhone').value,
+                    addressLine: document.getElementById('addrLine').value,
+                    city: document.getElementById('addrCity').value,
+                    state: document.getElementById('addrState').value,
+                    pincode: document.getElementById('addrPincode').value,
+                    latitude: document.getElementById('addrLat').value,
+                    longitude: document.getElementById('addrLng').value
+                };
+
+                try {
+                    const res = await fetch(`${BASE_URL}/addresses`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.showToast('Address Saved!');
+                        this.closeAddressModal();
+                        this.fetchAddresses();
+                    } else {
+                        alert(data.message);
+                    }
+                } catch (e) { console.error(e); }
+            },
+
+            async deleteAddress(id) {
+                if (!confirm('Delete this address?')) return;
+                const token = this.getToken();
+                try {
+                    const res = await fetch(`${BASE_URL}/addresses`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ addressId: id })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.fetchAddresses();
+                    } else {
+                        alert(data.message);
+                    }
+                } catch (e) { console.error(e); }
+            },
+
+            async startPayment(bookingId) {
+                const token = this.getToken();
+                if (!token) return;
+
+                this.showToast("Creating secure payment order...");
+
+                try {
+                    const res = await fetch(`${BASE_URL}/user/payment/order`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ bookingId })
+                    });
+
+                    const data = await res.json();
+
+                    if (!data.success) {
+                        alert("Payment Error: " + data.message);
+                        return;
+                    }
+
+                    const options = {
+                        key: data.result.keyId,
+                        order_id: data.result.orderId,
+                        currency: data.result.currency,
+                        name: "RightTouch Services",
+                        description: `Payment for Booking #${bookingId.substr(-6)}`,
+                        handler: function (response) {
+                            app.verifyPayment(response, bookingId, token);
+                        },
+                        theme: { color: "#4f46e5" },
+                        modal: {
+                            ondismiss: function () {
+                                app.showToast("Payment cancelled");
+                            }
+                        }
+                    };
+
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+
+                } catch (e) {
+                    console.error(e);
+                    this.showToast("Network error occurred");
+                }
+            },
+
+            async verifyPayment(response, bookingId, token) {
+                this.showToast("Verifying payment...");
+                try {
+                    const res = await fetch(`${BASE_URL}/user/payment/verify`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            bookingId,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature
+                        })
+                    });
+
+                    const data = await res.json();
+
+                    if (data.success) {
+                        alert("Payment Successful! Order Confirmed.");
+                        this.fetchOrders(); // Refresh status
+                    } else {
+                        alert("Verification failed: " + data.message);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    this.showToast("Verification error");
+                }
+            },
+
+            showToast(msg) {
+                const toast = document.getElementById('toast');
+                toast.innerText = msg;
+                toast.style.opacity = '1';
+                setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+            },
+
+            async viewService(id) {
+                const modal = document.getElementById('serviceModal');
+                const content = document.getElementById('serviceDetailsContent');
+                modal.classList.add('active');
+                content.innerHTML = '<p>Loading details...</p>';
+
+                try {
+                    const res = await fetch(`${BASE_URL}/user/getServiceById/${id}`);
+                    const data = await res.json();
+
+                    if (data.success) {
+                        const s = data.result;
+                        content.innerHTML = `
+                            <h2>${s.serviceName}</h2>
+                            <img src="${s.serviceImages?.[0] || ''}" style="width:100%; height:200px; object-fit:cover; border-radius:8px; margin-bottom:1rem;">
+                            <p><strong>Price:</strong> ₹${s.serviceCost}</p>
+                            <p><strong>Duration:</strong> ${s.duration || 'N/A'} mins</p>
+                            <p style="margin-top:1rem">${s.description}</p>
+                            <h3 style="margin-top:1rem; font-size:1.1rem;">Highlights</h3>
+                            <ul>${(s.serviceHighlights || []).map(h => `<li>${h}</li>`).join('')}</ul>
+                            <div style="margin-top:2rem; text-align:right">
+                                <button class="btn btn-primary" onclick="app.addToCart('${s._id}'); app.closeServiceModal()">Add to Cart</button>
+                            </div>
+                        `;
+                    }
+                } catch (err) {
+                    content.innerHTML = '<p>Error loading details.</p>';
+                }
+            },
+
+            closeServiceModal() {
+                document.getElementById('serviceModal').classList.remove('active');
+            },
+
+            getCurrentLocation() {
+                const status = document.getElementById('locationStatus');
+                const mapFrame = document.getElementById('mapFrame');
+
+                if (!navigator.geolocation) {
+                    status.innerText = "Geolocation not supported";
+                    return;
+                }
+
+                status.innerText = "Locating...";
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+
+                        document.getElementById('checkoutLat').value = lat;
+                        document.getElementById('checkoutLng').value = lng;
+
+                        status.innerText = `Location set: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        status.style.color = "green";
+
+                        // Update Map
+                        mapFrame.src = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+                    },
+                    (error) => {
+                        console.error("Error getting location", error);
+                        status.innerText = "Location access denied. Using default.";
+                        status.style.color = "red";
+                    }
+                );
+            }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => app.init());
+
+    </script>
+</body>
+
+</html>

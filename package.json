@@ -1,0 +1,48 @@
+{
+  "name": "righttouch_backend",
+  "version": "1.0.0",
+  "description": "Electorinics Appliances services and products ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FlareMindsTech/righttouch_backend.git"
+  },
+  "keywords": [
+    "right",
+    "touch"
+  ],
+  "author": "Flareminds",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FlareMindsTech/righttouch_backend/issues"
+  },
+  "homepage": "https://github.com/FlareMindsTech/righttouch_backend#readme",
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^2.2.0",
+    "cloudinary": "^1.41.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.17.1",
+    "multer": "^2.0.2",
+    "multer-storage-cloudinary": "^4.0.0",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.5",
+    "nodemon": "^3.1.10",
+    "resend": "^6.6.0",
+    "socket.io": "^4.8.3",
+    "twilio": "^5.9.0",
+    "xss-clean": "^0.1.4"
+  }
+}

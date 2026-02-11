@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RightTouch – Secure Payment Gateway</title>
+
+  <!-- Razorpay Checkout -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #3399cc;
+      --primary-dark: #287aa9;
+      --dark: #1F2937;
+      --light: #F3F4F6;
+      --white: #FFFFFF;
+      --gray: #6B7280;
+      --border: #E5E7EB;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --success: #10B981;
+      --error: #EF4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1.5rem;
+      }
+    }
+
+    .container {
+      background: var(--white);
+      padding: 2.5rem;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+
+    .logo-area {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .logo-circle {
+      width: 60px;
+      height: 60px;
+      background: #E0F2FE;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      background: #FAFAFA;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(51, 153, 204, 0.15);
+    }
+
+    button {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.85rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+    }
+
+    button:disabled {
+      background: var(--gray);
+      cursor: not-allowed;
+    }
+
+    #msg {
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .msg-success {
+      background: #ECFDF5;
+      color: var(--success);
+    }
+
+    .msg-error {
+      background: #FEF2F2;
+      color: var(--error);
+    }
+
+    .msg-loading {
+      background: #EFF6FF;
+      color: var(--primary);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div class="logo-area">
+        <div class="logo-circle">💳</div>
+      </div>
+      <h2>Secure Payment</h2>
+      <p>Complete your booking securely via Razorpay</p>
+    </div>
+
+    <div class="form-group">
+      <label for="bookingId">Booking Reference ID</label>
+      <input type="text" id="bookingId" placeholder="e.g. 64f8a..." />
+    </div>
+
+    <div class="form-group">
+      <label for="token">Customer Access Token</label>
+      <input type="text" id="token" placeholder="Paste your JWT here" />
+    </div>
+
+    <button id="payBtn" onclick="startPayment()">Pay Now</button>
+
+    <div id="msg"></div>
+
+  </div>
+
+  <script>
+    const BASE_URL = "http://localhost:7372";
+
+    /* =====================================================
+       1️⃣ PAY NOW → CREATE PAYMENT ORDER
+    ===================================================== */
+    async function startPayment() {
+      const bookingId = document.getElementById("bookingId").value.trim();
+      const token = document.getElementById("token").value.trim();
+      const msg = document.getElementById("msg");
+      const btn = document.getElementById("payBtn");
+
+      if (!bookingId || !token) {
+        showMsg("❌ Booking ID and Token are required", "error");
+        return;
+      }
+
+      showMsg("⏳ Creating secure payment order...", "loading");
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${BASE_URL}/api/user/payment/order`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ bookingId })
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+          showMsg("❌ " + data.message, "error");
+          btn.disabled = false;
+          return;
+        }
+
+        /* =====================================================
+           2️⃣ OPEN RAZORPAY CHECKOUT
+        ===================================================== */
+        const options = {
+          key: data.result.keyId,
+          order_id: data.result.orderId,
+          currency: data.result.currency,
+          name: "RightTouch Services",
+          description: `Payment for Booking #${bookingId.substr(-6)}`,
+          image: "https://your-logo-url.com/logo.png", // Optional: Add a real logo URL if available
+          handler: function (response) {
+            verifyPayment(response, bookingId, token);
+          },
+          prefill: {
+            name: "", // Can be filled if we had user details
+            email: "",
+            contact: ""
+          },
+          theme: { color: "#3399cc" },
+          modal: {
+            ondismiss: function () {
+              showMsg("⚠️ Payment cancelled by user", "error");
+              btn.disabled = false;
+            }
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+
+      } catch (e) {
+        console.error(e);
+        showMsg("❌ Network error occurred", "error");
+        btn.disabled = false;
+      }
+    }
+
+    /* =====================================================
+       3️⃣ VERIFY PAYMENT
+    ===================================================== */
+    async function verifyPayment(response, bookingId, token) {
+      showMsg("🔐 Verifying payment signature...", "loading");
+
+      try {
+        const res = await fetch(`${BASE_URL}/api/user/payment/verify`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            bookingId,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showMsg("✅ Payment Successful! Redirecting...", "success");
+          const btn = document.getElementById("payBtn");
+          btn.innerText = "Payment Complete";
+          btn.style.background = "#10B981";
+        } else {
+          showMsg("❌ Verification failed: " + data.message, "error");
+          document.getElementById("payBtn").disabled = false;
+        }
+      } catch (e) {
+        showMsg("❌ Verification error", "error");
+        document.getElementById("payBtn").disabled = false;
+      }
+    }
+
+    function showMsg(text, type) {
+      const msg = document.getElementById("msg");
+      msg.innerText = text;
+      msg.style.display = "block";
+      msg.className = ""; // Reset
+      msg.classList.add(`msg-${type}`);
+    }
+  </script>
+
+</body>
+
+</html>

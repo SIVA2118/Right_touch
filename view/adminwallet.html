@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Wallet Dashboard</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #4338ca;
+            --secondary: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --dark: #1F2937;
+            --light: #F3F4F6;
+            --white: #FFFFFF;
+            --gray: #9CA3AF;
+            --border: #E5E7EB;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .auth-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .auth-bar {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .auth-bar input {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .filter-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        .auth-bar input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 300px;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            border: 1px solid var(--border);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light);
+        }
+
+        /* DASHBOARD GRID */
+        .container {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-card.featured {
+            border-top: 4px solid var(--primary);
+        }
+
+        .stat-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value.green {
+            color: var(--secondary);
+        }
+
+        .stat-value.blue {
+            color: var(--primary);
+        }
+
+        .stat-sub {
+            font-size: 0.85rem;
+            color: var(--gray);
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid var(--light);
+        }
+
+        .stat-sub span {
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+        }
+
+        .stat-sub b {
+            color: var(--dark);
+        }
+
+        /* SUMMARY ROW */
+        .summary-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 250px;
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .summary-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .bg-orange {
+            background: #FFF7ED;
+            color: #F97316;
+        }
+
+        .bg-green {
+            background: #ECFDF5;
+            color: #10B981;
+        }
+
+        .bg-red {
+            background: #FEF2F2;
+            color: #EF4444;
+        }
+
+        .bg-blue {
+            background: #EFF6FF;
+            color: #3B82F6;
+        }
+
+        /* FILTERS */
+        .filter-section {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2.5rem;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--light);
+            padding: 0.25rem;
+            border-radius: 8px;
+        }
+
+        .radio-group label {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+
+        .radio-group input {
+            display: none;
+        }
+
+        .radio-group input:checked+label {
+            background: var(--white);
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .date-inputs input {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .filter-results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .filter-res-card {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .filter-res-card h4 {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .filter-res-card p {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* TABLE */
+        .table-container {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--light);
+            text-align: left;
+            padding: 1rem 1.5rem;
+            font-size: 0.85rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #FAFAFA;
+        }
+
+        /* BADGES */
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.approved,
+        .badge.success {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .badge.pending {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .badge.rejected {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        /* UTILS */
+        .hidden {
+            display: none !important;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-col {
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            👨‍💼 Admin Wallet
+        </div>
+        <div class="auth-bar">
+            <input type="text" id="token" placeholder="Enter Admin JWT Token" />
+            <button class="btn btn-primary" onclick="loadWallet()">
+                <span>Load Data</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- MAIN STATS GRID -->
+        <div id="walletCards" class="hidden flex-col">
+
+            <h3 class="section-title">Overview</h3>
+            <div class="summary-row">
+                <div class="summary-card">
+                    <div>
+                        <div class="stat-title">Available Balance</div>
+                        <div class="stat-value blue">₹<span id="availableBalance">0</span></div>
+                    </div>
+                    <div class="summary-icon bg-blue">💰</div>
+                </div>
+
+                <div class="summary-card">
+                    <div>
+                        <div class="stat-title">Pending Withdrawals</div>
+                        <div class="stat-value text-orange">₹<span id="totalPendingWithdrawals">0</span></div>
+                    </div>
+                    <div class="summary-icon bg-orange">⏳</div>
+                </div>
+
+                <div class="summary-card">
+                    <div>
+                        <div class="stat-title">Total Approved</div>
+                        <div class="stat-value text-green">₹<span id="totalWithdrawn">0</span></div>
+                        <div class="stat-sub">Count: <span id="approvedWithdrawCount">0</span></div>
+                    </div>
+                    <div class="summary-icon bg-green">✅</div>
+                </div>
+
+                <div class="summary-card">
+                    <div>
+                        <div class="stat-title">Total Rejected</div>
+                        <div class="stat-value text-red" style="font-size:1.5rem"><span
+                                id="rejectedWithdrawCount">0</span></div>
+                    </div>
+                    <div class="summary-icon bg-red">❌</div>
+                </div>
+            </div>
+
+            <div class="section-header"
+                style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem">
+                <h3 class="section-title" style="margin:0">Revenue Breakdown</h3>
+
+                <!-- Filter Controls Integrated Here -->
+                <div class="filter-controls"
+                    style="background:var(--white); padding:0.5rem; border-radius:8px; box-shadow:var(--shadow)">
+                    <div class="radio-group">
+                        <input type="radio" id="f-day" name="filterType" value="day" checked
+                            onchange="toggleFilterInputs()">
+                        <label for="f-day">Day</label>
+
+                        <input type="radio" id="f-month" name="filterType" value="month"
+                            onchange="toggleFilterInputs()">
+                        <label for="f-month">Month</label>
+
+                        <input type="radio" id="f-year" name="filterType" value="year" onchange="toggleFilterInputs()">
+                        <label for="f-year">Year</label>
+                    </div>
+
+                    <div class="date-inputs" style="margin:0 0.5rem;">
+                        <div id="inputDay"><input type="date" id="filterDate"></div>
+                        <div id="inputMonth" class="hidden"><input type="month" id="filterMonth"></div>
+                        <div id="inputYear" class="hidden"><input type="number" id="filterYear" placeholder="YYYY"
+                                min="2000" max="2100"></div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="loadFilteredStats()">Apply Filter</button>
+                    <button class="btn btn-secondary" onclick="resetToDefault()">Reset</button>
+                </div>
+            </div>
+
+            <!-- DEFAULT STATS GRID -->
+            <div id="defaultStatsGrid" class="stats-grid">
+                <!-- Today -->
+                <div class="stat-card featured">
+                    <div class="stat-title">Today</div>
+                    <div class="stat-value">₹<span id="todayNet">0</span></div>
+                    <div class="stat-sub">
+                        <span>Col: <b>₹<span id="todayCol">0</span></b></span>
+                        <span>Com: <b>₹<span id="todayCom">0</span></b></span>
+                    </div>
+                </div>
+
+                <!-- Month -->
+                <div class="stat-card">
+                    <div class="stat-title">This Month</div>
+                    <div class="stat-value">₹<span id="monthNet">0</span></div>
+                    <div class="stat-sub">
+                        <span>Col: <b>₹<span id="monthCol">0</span></b></span>
+                        <span>Com: <b>₹<span id="monthCom">0</span></b></span>
+                    </div>
+                </div>
+
+                <!-- Year -->
+                <div class="stat-card">
+                    <div class="stat-title">This Year</div>
+                    <div class="stat-value">₹<span id="yearNet">0</span></div>
+                    <div class="stat-sub">
+                        <span>Col: <b>₹<span id="yearCol">0</span></b></span>
+                        <span>Com: <b>₹<span id="yearCom">0</span></b></span>
+                    </div>
+                </div>
+
+                <!-- Overall -->
+                <div class="stat-card">
+                    <div class="stat-title">Overall Lifetime</div>
+                    <div class="stat-value green">₹<span id="overallNet">0</span></div>
+                    <div class="stat-sub">
+                        <span>Col: <b>₹<span id="overallCol">0</span></b></span>
+                        <span>Com: <b>₹<span id="overallCom">0</span></b></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILTER RESOLVED GRID (Hidden by default) -->
+            <div id="filterResultGrid" class="stats-grid hidden">
+                <div class="stat-card featured">
+                    <div class="stat-title">Filtered Net Payout</div>
+                    <div class="stat-value">₹<span id="filterNet">0</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Filtered Collected</div>
+                    <div class="stat-value blue">₹<span id="filterCollected">0</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Filtered Commission</div>
+                    <div class="stat-value green">₹<span id="filterCommission">0</span></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- WITHDRAWAL REQUESTS TABLE -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="section-title" style="margin:0">💸 Technician Withdraw Requests</h3>
+                <button class="btn btn-secondary" onclick="loadWithdrawals()">
+                    Refresh List
+                </button>
+            </div>
+
+            <table id="withdrawTable">
+                <thead>
+                    <tr>
+                        <th>Technician</th>
+                        <th>Wallet Balance</th>
+                        <th>Request Amount</th>
+                        <th>Status</th>
+                        <th>Requested At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan='6' style="text-align:center; padding: 2rem;">Click "Load Data" to view requests
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC (Unchanged Logic, just re-integrated) -->
+    <script>
+        const BASE_URL = "http://localhost:7372/api/admin";
+
+        const getToken = () => document.getElementById("token").value.trim();
+
+        /* ================= LOAD WALLET SUMMARY ================= */
+        async function loadWallet() {
+            const token = getToken();
+            if (!token) return alert("Admin JWT required");
+
+            try {
+                const res = await fetch(`${BASE_URL}/wallet`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!data.success) return alert(data.message);
+
+                // Helper to safely set text
+                const setText = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = val ?? 0;
+                };
+
+                // Populate Overall
+                setText("overallNet", data.result.overall.netPayout);
+                setText("overallCol", data.result.overall.collected);
+                setText("overallCom", data.result.overall.commission);
+
+                // Populate Today
+                setText("todayNet", data.result.today.netPayout);
+                setText("todayCol", data.result.today.collected);
+                setText("todayCom", data.result.today.commission);
+
+                // Populate Month
+                setText("monthNet", data.result.month.netPayout);
+                setText("monthCol", data.result.month.collected);
+                setText("monthCom", data.result.month.commission);
+
+                // Populate Year
+                setText("yearNet", data.result.year.netPayout);
+                setText("yearCol", data.result.year.collected);
+                setText("yearCom", data.result.year.commission);
+
+                // Balances and Counts
+                setText("availableBalance", data.result.availableBalance);
+                setText("totalPendingWithdrawals", data.result.totalPendingWithdrawals);
+                setText("totalWithdrawn", data.result.totalWithdrawn);
+                setText("approvedWithdrawCount", data.result.approvedWithdrawCount);
+                setText("rejectedWithdrawCount", data.result.rejectedWithdrawCount);
+
+                // Show Section
+                const section = document.getElementById("walletCards");
+                section.classList.remove("hidden");
+                section.classList.add("flex");
+
+                // Initial Load of Withdrawals
+                loadWithdrawals();
+
+            } catch (e) {
+                console.error(e);
+                alert("Failed to load wallet data");
+            }
+        }
+
+        /* ================= LOAD WITHDRAWALS ================= */
+        async function loadWithdrawals(queryParams = "") {
+            const token = getToken();
+            if (!token) return alert("Admin JWT required");
+
+            const url = queryParams
+                ? `${BASE_URL}/wallet/withdrawals?${queryParams}`
+                : `${BASE_URL}/wallet/withdrawals`;
+
+            try {
+                const res = await fetch(url, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!data.success) return alert(data.message);
+
+                const table = document.getElementById("withdrawTable");
+                const tbody = table.querySelector("tbody");
+                tbody.innerHTML = "";
+
+                if (data.result.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 2rem; color: #666;'>No requests found</td></tr>";
+                } else {
+                    data.result.forEach(w => {
+                        const row = document.createElement("tr");
+
+                        // Status Badge Class
+                        let badgeClass = "pending";
+                        if (w.status === "approved") badgeClass = "approved";
+                        if (w.status === "rejected") badgeClass = "rejected";
+
+                        row.innerHTML = `
+                <td style="font-weight:500">${w.technicianId?.name || w.technicianId?.mobileNumber || "Unknown"}</td>
+                <td>₹${w.technicianId?.walletBalance ?? 0}</td>
+                <td style="font-weight:bold">₹${w.amount}</td>
+                <td><span class="badge ${badgeClass}">${w.status.toUpperCase()}</span></td>
+                <td style="color:#666">${new Date(w.createdAt).toLocaleString()}</td>
+                <td>
+                  ${w.status === "pending"
+                                ? `
+                        <button class="btn btn-primary" style="padding:0.25rem 0.75rem; font-size:0.8rem; background: var(--secondary);" onclick="decide('${w._id}', 'approve')">Approve</button>
+                        <button class="btn btn-primary" style="padding:0.25rem 0.75rem; font-size:0.8rem; background: var(--danger);" onclick="decide('${w._id}', 'reject')">Reject</button>
+                      `
+                                : `-`
+                            }
+                </td>
+              `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        /* ================= DECIDE ACTION ================= */
+        async function decide(id, action) {
+            const token = getToken();
+            if (!token) return alert("Admin JWT required");
+
+            if (!confirm(`Are you sure you want to ${action} this request?`)) return;
+
+            try {
+                const res = await fetch(
+                    `${BASE_URL}/wallet/withdrawals/${id}/${action}`,
+                    {
+                        method: "PUT",
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
+                );
+
+                const data = await res.json();
+                alert(data.message || "Updated");
+
+                loadWithdrawals();
+                loadWallet();
+            } catch (e) {
+                alert("Action failed");
+            }
+        }
+
+        /* ================= FILTER LOGIC ================= */
+        function toggleFilterInputs() {
+            const type = document.querySelector('input[name="filterType"]:checked').value;
+
+            const dayEl = document.getElementById("inputDay");
+            const monthEl = document.getElementById("inputMonth");
+            const yearEl = document.getElementById("inputYear");
+
+            dayEl.classList.add("hidden");
+            monthEl.classList.add("hidden");
+            yearEl.classList.add("hidden");
+
+            if (type === 'day') dayEl.classList.remove("hidden");
+            if (type === 'month') monthEl.classList.remove("hidden");
+            if (type === 'year') yearEl.classList.remove("hidden");
+
+            document.getElementById("filterResult").classList.add("hidden");
+        }
+
+        async function loadFilteredStats() {
+            const token = getToken();
+            if (!token) return alert("Admin JWT required");
+
+            const type = document.querySelector('input[name="filterType"]:checked').value;
+            let query = `type=${type}`;
+
+            if (type === "day") {
+                const date = document.getElementById("filterDate").value;
+                if (!date) return alert("Please select a date");
+                query += `&date=${date}`;
+            } else if (type === "month") {
+                const month = document.getElementById("filterMonth").value;
+                if (!month) return alert("Please select a month");
+                query += `&month=${month}`;
+            } else if (type === "year") {
+                const year = document.getElementById("filterYear").value;
+                if (!year) return alert("Please enter a year");
+                query += `&year=${year}`;
+            }
+
+            try {
+                // Load Wallet Stats
+                const res = await fetch(`${BASE_URL}/wallet/filter?${query}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!data.success) return alert(data.message);
+
+                document.getElementById("filterNet").innerText = data.result.netPayout;
+                document.getElementById("filterCollected").innerText = data.result.collected;
+                document.getElementById("filterCommission").innerText = data.result.commission;
+
+                // Show Filter Grid, Hide Default
+                document.getElementById("defaultStatsGrid").classList.add("hidden");
+                document.getElementById("filterResultGrid").classList.remove("hidden");
+                document.getElementById("filterResultGrid").style.display = "grid"; // Ensure grid display
+
+                // ALSO LOAD WITHDRAWALS WITH FILTER
+                loadWithdrawals(query);
+            } catch (e) {
+                console.error(e);
+                alert("Failed to filter stats");
+            }
+        }
+
+        function resetToDefault() {
+            // Hide Filter Grid, Show Default
+            document.getElementById("filterResultGrid").classList.add("hidden");
+            document.getElementById("filterResultGrid").style.display = "none";
+            document.getElementById("defaultStatsGrid").classList.remove("hidden");
+
+            // Reload basic lists (no query = no filter)
+            loadWithdrawals("");
+        }
+    </script>
+
+</body>
+
+</html>

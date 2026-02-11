@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technician Wallet Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Input Group */
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .full-width {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .card-header button {
+                width: 100%;
+            }
+
+            .input-group label {
+                font-size: 0.85rem;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* Wallet Hero Section */
+        .wallet-balance-card {
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            color: white;
+            text-align: center;
+            padding: 2.5rem;
+        }
+
+        .wallet-balance-card .card-title {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.5rem;
+            border: none;
+        }
+
+        .balance-amount {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+        }
+
+        .wallet-status {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            display: inline-block;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Status Badges */
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-approved,
+        .status-completed {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+
+        .status-rejected,
+        .status-failed {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none;
+        }
+
+        .mt-4 {
+            margin-top: 1rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Feedback Messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Technician Wallet</h1>
+            <p>Manage your earnings and withdrawals securely</p>
+        </div>
+
+        <!-- Auth Section (For Testing) -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">🔑 Developer Auth</span>
+            </div>
+            <div class="input-group">
+                <input type="text" id="token" class="form-input"
+                    placeholder="Paste your Technician JWT Token here..." />
+            </div>
+            <button onclick="loadWallet()" class="btn btn-primary btn-full">Access Wallet Dashboard</button>
+        </div>
+
+        <div id="dashboard" class="dashboard-grid hidden">
+
+            <!-- Stats Row -->
+            <div class="stats-row full-width"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
+                <!-- Balance Card -->
+                <div class="card wallet-balance-card"
+                    style="background: linear-gradient(135deg, #4f46e5, #818cf8); padding: 1.5rem;">
+                    <div class="card-title" style="color: rgba(255, 255, 255, 0.9); border: none; font-size: 1rem;">
+                        Current Balance</div>
+                    <div class="balance-amount" id="balanceDisplay" style="font-size: 1.8rem; margin: 0.5rem 0;">₹0.00
+                    </div>
+                    <div class="wallet-status" style="font-size: 0.8rem;">Available</div>
+                </div>
+
+                <!-- Total Earnings Card -->
+                <div class="card wallet-balance-card"
+                    style="background: linear-gradient(135deg, #10b981, #34d399); padding: 1.5rem;">
+                    <div class="card-title" style="color: rgba(255, 255, 255, 0.9); border: none; font-size: 1rem;">
+                        Total Earnings</div>
+                    <div class="balance-amount" id="earningsDisplay" style="font-size: 1.8rem; margin: 0.5rem 0;">₹0.00
+                    </div>
+                    <div class="wallet-status" style="font-size: 0.8rem;">Lifetime Credit</div>
+                </div>
+
+                <!-- Approved Withdrawals Card -->
+                <div class="card wallet-balance-card"
+                    style="background: linear-gradient(135deg, #3b82f6, #60a5fa); padding: 1.5rem;">
+                    <div class="card-title" style="color: rgba(255, 255, 255, 0.9); border: none; font-size: 1rem;">
+                        Total Withdrawn</div>
+                    <div class="balance-amount" id="approvedTotalDisplay" style="font-size: 1.8rem; margin: 0.5rem 0;">
+                        ₹0.00</div>
+                    <div class="wallet-status" id="approvedCountDisplay" style="font-size: 0.8rem;">0 Approved</div>
+                </div>
+
+                <!-- Rejected Requests Card -->
+                <div class="card wallet-balance-card"
+                    style="background: linear-gradient(135deg, #ef4444, #f87171); padding: 1.5rem;">
+                    <div class="card-title" style="color: rgba(255, 255, 255, 0.9); border: none; font-size: 1rem;">
+                        Total Rejected</div>
+                    <div class="balance-amount" id="rejectedTotalDisplay" style="font-size: 1.8rem; margin: 0.5rem 0;">
+                        ₹0.00</div>
+                    <div class="wallet-status" id="rejectedCountDisplay" style="font-size: 0.8rem;">0 Requests</div>
+                </div>
+            </div>
+
+            <!-- Withdraw Request -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">💸 Request Withdrawal</span>
+                </div>
+                <div class="input-group">
+                    <label for="withdrawAmount">Amount (₹)</label>
+                    <input type="number" id="withdrawAmount" class="form-input" placeholder="Enter amount (min ₹100)" />
+                    <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                        Note: Returns are processed on Fridays only. Minimum withdrawal: ₹100.
+                    </small>
+                </div>
+                <button onclick="requestWithdraw()" class="btn btn-primary btn-full">Send Request</button>
+                <div id="withdrawMsg"></div>
+            </div>
+
+            <!-- Withdraw History -->
+            <div class="card full-width">
+                <div class="card-header">
+                    <span class="card-title">🕐 Withdrawal History</span>
+                    <button onclick="loadWithdraws()" class="btn btn-primary"
+                        style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Refresh</button>
+                </div>
+                <div class="table-container">
+                    <table id="withdrawTable">
+                        <thead>
+                            <tr>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date Requested</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No withdrawal history loaded.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="card full-width">
+                <div class="card-header" style="flex-wrap: wrap; gap: 10px;">
+                    <span class="card-title">📊 Transaction Log</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="date" id="startDate" class="form-input" style="padding: 0.4rem; width: auto;"
+                            placeholder="Start Date">
+                        <input type="date" id="endDate" class="form-input" style="padding: 0.4rem; width: auto;"
+                            placeholder="End Date">
+                        <button onclick="loadTransactions()" class="btn btn-primary"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Filter</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="txTable">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Source</th>
+                                <th>Note</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No transactions loaded.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = "http://localhost:7372/api/technician";
+
+        const getToken = () => {
+            const token = document.getElementById("token").value.trim();
+            if (!token) {
+                alert("Please enter a valid JWT Token first.");
+                return null;
+            }
+            return token;
+        };
+
+        function showMessage(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.className = `alert ${type === 'success' ? 'alert-success' : 'alert-error'} fade-in`;
+            el.innerText = message;
+            setTimeout(() => el.className = '', 5000); // Clear after 5s
+        }
+
+        async function loadWallet() {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${BASE_URL}/wallet`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById("dashboard").classList.remove("hidden");
+                    document.getElementById("dashboard").classList.add("fade-in");
+                    document.getElementById("balanceDisplay").innerText = `₹${parseFloat(data.balance).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                    document.getElementById("earningsDisplay").innerText = `₹${parseFloat(data.totalEarnings || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+
+                    // New Stats
+                    if (data.stats) {
+                        document.getElementById("approvedTotalDisplay").innerText = `₹${parseFloat(data.stats.approvedTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                        document.getElementById("approvedCountDisplay").innerText = `${data.stats.approvedCount || 0} Approved`;
+
+                        document.getElementById("pendingTotalDisplay").innerText = `₹${parseFloat(data.stats.pendingTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                        document.getElementById("pendingTotalDisplay").innerText = `₹${parseFloat(data.stats.pendingTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                        document.getElementById("pendingCountDisplay").innerText = `${data.stats.pendingCount || 0} Requests`;
+
+                        document.getElementById("rejectedTotalDisplay").innerText = `₹${parseFloat(data.stats.rejectedTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+                        document.getElementById("rejectedCountDisplay").innerText = `${data.stats.rejectedCount || 0} Denied`;
+                    }
+
+
+                    // Auto load other data
+                    loadWithdraws();
+                    loadTransactions();
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Failed to connect to server.");
+            }
+        }
+
+        async function requestWithdraw() {
+            const token = getToken();
+            if (!token) return;
+
+            const amount = document.getElementById("withdrawAmount").value;
+            if (!amount || amount <= 0) {
+                showMessage("withdrawMsg", "Please enter a valid amount.", "error");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${BASE_URL}/wallet/withdraw`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ amount })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showMessage("withdrawMsg", "Withdraw request sent successfully!", "success");
+                    document.getElementById("withdrawAmount").value = ""; // Clear input
+                    loadWithdraws(); // Refresh list
+                    loadWallet(); // Refresh balance
+                } else {
+                    showMessage("withdrawMsg", data.message, "error");
+                }
+            } catch (err) {
+                showMessage("withdrawMsg", "Network error occurred.", "error");
+            }
+        }
+
+        async function loadWithdraws() {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${BASE_URL}/wallet/withdraws`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!data.success) return;
+
+                const tbody = document.querySelector("#withdrawTable tbody");
+                tbody.innerHTML = "";
+
+                if (data.result.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center" style="padding: 2rem; color: #6b7280;">No withdrawal requests found.</td></tr>`;
+                    return;
+                }
+
+                data.result.forEach(w => {
+                    const row = document.createElement("tr");
+                    row.className = "fade-in";
+                    const date = new Date(w.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const statusClass = `status-${w.status.toLowerCase()}`;
+
+                    row.innerHTML = `
+                    <td style="font-weight: 500;">₹${w.amount}</td>
+                    <td><span class="badge ${statusClass}">${w.status}</span></td>
+                    <td style="color: var(--text-muted); font-size: 0.85rem;">${date}</td>
+                    <td>
+                        ${w.status === "pending"
+                            ? `<button class="btn btn-danger" onclick="cancelWithdraw('${w._id}')">Cancel</button>`
+                            : `<span style="color: #cbd5e1;">-</span>`}
+                    </td>
+                `;
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                console.error("Failed to load withdraws", err);
+            }
+        }
+
+        async function loadTransactions() {
+            const token = getToken();
+            if (!token) return;
+
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+
+            let url = `${BASE_URL}/wallet/transactions`;
+            const params = new URLSearchParams();
+            if (startDate) params.append("startDate", startDate);
+            if (endDate) params.append("endDate", endDate);
+
+            if (params.toString()) url += `?${params.toString()}`;
+
+            try {
+                const res = await fetch(url, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!data.success) return;
+
+                const tbody = document.querySelector("#txTable tbody");
+                tbody.innerHTML = "";
+
+                if (data.result.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding: 2rem; color: #6b7280;">No transactions found.</td></tr>`;
+                    return;
+                }
+
+                data.result.forEach(tx => {
+                    const row = document.createElement("tr");
+                    row.className = "fade-in";
+                    const date = new Date(tx.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+                    row.innerHTML = `
+                    <td style="text-transform: capitalize; font-weight: 500;">${tx.type}</td>
+                    <td style="${tx.type === 'credit' ? 'color: var(--success);' : 'color: var(--danger);'} font-weight: 600;">
+                        ${tx.type === 'credit' ? '+' : '-'} ₹${tx.amount}
+                    </td>
+                    <td>${tx.source || "System"}</td>
+                    <td style="color: var(--text-muted); font-style: italic;">${tx.note || "-"}</td>
+                    <td style="color: var(--text-muted); font-size: 0.85rem;">${date}</td>
+                `;
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                console.error("Failed to load transactions", err);
+            }
+        }
+
+        async function cancelWithdraw(id) {
+            const token = getToken();
+            if (!token) return;
+
+            if (!confirm("Are you sure you want to cancel this withdrawal request?")) return;
+
+            try {
+                const res = await fetch(`${BASE_URL}/wallet/withdraw/${id}`, {
+                    method: "DELETE",
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    alert("Withdrawal request cancelled.");
+                    loadWithdraws();
+                    loadWallet(); // Balance might update if we refund logic exists (usually pending doesn't deduct until approved, or it does. Safety refresh)
+                } else {
+                    alert(data.message || "Failed to cancel");
+                }
+            } catch (err) {
+                alert("Network error");
+            }
+        }
+    </script>
+
+</body>
+
+</html>
