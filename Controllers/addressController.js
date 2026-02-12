@@ -98,7 +98,7 @@ export const createAddress = async (req, res) => {
     if (!profileName || !profilePhone) {
       return res.status(400).json({
         success: false,
-        message: "Please complete your profile (firstName, mobileNumber) before adding an address",
+        message: "Please complete your profile (fname, mobileNumber) before adding an address",
         result: {},
       });
     }
@@ -446,10 +446,11 @@ export const getDefaultAddress = async (req, res) => {
     }).populate("customerId", "fname lname mobileNumber email");
 
     if (!address) {
-      return res.status(404).json({
-        success: false,
+      //sk
+      return res.status(200).json({
+        success: true,
         message: "No default address set",
-        result: {},
+        result: null,
       });
     }
 
