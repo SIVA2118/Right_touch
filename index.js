@@ -8,12 +8,17 @@ import multer from "multer";
 import rateLimit from "express-rate-limit";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import UserRoutes from "./Routes/User.js";
 import TechnicianRoutes from "./Routes/technician.js";
 import AddressRoutes from "./Routes/address.js";
 import technicianWalletRoutes from "./Routes/technicianWalletRoutes.js";
 import adminWalletRoutes from "./Routes/adminWalletRoutes.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 dotenv.config();
@@ -147,6 +152,11 @@ mongoose
 
 App.get("/", (req, res) => {
   res.send("welcome");
+});
+
+// ✅ Service Landing Page (Serve HTML for share links)
+App.get("/service/:id", (req, res) => {
+  res.sendFile(path.join(__dirname, "view", "service.html"));
 });
 
 // Routes

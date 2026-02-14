@@ -493,7 +493,7 @@ export const getTechnicianCurrentJobs = async (req, res) => {
           city: jobObj.addressId.city || "",
           state: jobObj.addressId.state || "",
           pincode: jobObj.addressId.pincode || "",
-          //sk
+        //sk
           latitude: jobObj.addressId.latitude,
           longitude: jobObj.addressId.longitude,
         };

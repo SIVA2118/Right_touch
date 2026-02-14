@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Right Touch | Premium Service</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Professional home services at your fingertips. Book high-quality AC service, cleaning, and repairs with Right Touch.">
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #10B981;
+            --primary-dark: #059669;
+            --primary-soft: rgba(16, 185, 129, 0.1);
+            --secondary: #1E293B;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --bg-body: #F8FAFC;
+            --white: #FFFFFF;
+            --glass: rgba(255, 255, 255, 0.8);
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Loading Overlay */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--primary-soft);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Header / Navbar */
+        nav {
+            position: sticky;
+            top: 0;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 1rem 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .logo i {
+            color: var(--primary);
+        }
+
+        /* Hero / Hero Content */
+        .service-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 3rem;
+            padding: 3rem 0;
+            align-items: start;
+        }
+
+        @media (max-width: 992px) {
+            .service-layout {
+                gap: 2rem;
+            }
+
+            .service-title {
+                font-size: 2.25rem;
+            }
+        }
+
+        @media (max-width: 850px) {
+            .service-layout {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+                padding: 1.5rem 0;
+            }
+
+            .service-media {
+                order: -1;
+            }
+
+            .service-title {
+                font-size: 2rem;
+                text-align: center;
+            }
+
+            .service-category,
+            .service-meta,
+            .price-container,
+            .description {
+                text-align: center;
+                justify-content: center;
+            }
+
+            .highlights {
+                margin-top: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .service-title {
+                font-size: 1.75rem;
+            }
+
+            .price-current {
+                font-size: 1.8rem;
+            }
+
+            .highlights {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .nav-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+
+        .service-image-container {
+            position: relative;
+            border-radius: 2rem;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            box-shadow: var(--shadow-lg);
+            background: #e2e8f0;
+        }
+
+        .service-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .service-image:hover {
+            transform: scale(1.05);
+        }
+
+        .badge-premium {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 10rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .badge-premium i {
+            color: #FBBF24;
+        }
+
+        /* Details Side */
+        .service-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .service-category {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .service-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--text-main);
+        }
+
+        .service-meta {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .rating i {
+            color: #FBBF24;
+        }
+
+        .price-container {
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+        }
+
+        .price-current {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .price-old {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .description {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Highlights */
+        .highlights {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .highlight-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--secondary);
+            background: var(--white);
+            padding: 0.75rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .highlight-item i {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        /* Action Footer / Sticky */
+        .action-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 2.5rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .btn-app {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            background: var(--text-main);
+            color: var(--white);
+            text-decoration: none;
+            padding: 1.25rem 2.5rem;
+            border-radius: 1.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        .btn-app:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
+        }
+
+        .app-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .app-badges img {
+            height: 40px;
+            cursor: pointer;
+        }
+
+        /* Sections */
+        .section {
+            padding: 4rem 0;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 600px) {
+            .section-title {
+                font-size: 1.5rem;
+                text-align: center;
+                justify-content: center;
+            }
+        }
+
+        .check-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .check-item {
+            display: flex;
+            gap: 1rem;
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            border: 1px solid #E2E8F0;
+            transition: transform 0.3s ease;
+        }
+
+        .check-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .check-item i {
+            margin-top: 0.25rem;
+            font-size: 1.2rem;
+        }
+
+        .check-item.in i {
+            color: var(--primary);
+        }
+
+        .check-item.out i {
+            color: #EF4444;
+        }
+
+        /* Error View */
+        #error-view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 15vh 2rem;
+        }
+
+        #error-view i {
+            font-size: 6rem;
+            color: #CBD5E1;
+            margin-bottom: 2rem;
+        }
+
+        .footer {
+            background: var(--white);
+            padding: 4rem 0;
+            border-top: 1px solid #E2E8F0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <nav>
+        <div class="container nav-content">
+            <a href="/" class="logo">
+                <i class="fas fa-hand-holding-heart"></i> Right Touch
+            </a>
+            <a href="#" id="open-app-nav" class="btn-app"
+                style="margin:0; padding: 0.6rem 1.2rem; font-size: 0.9rem; border-radius: 0.75rem;">
+                Open App
+            </a>
+        </div>
+    </nav>
+
+    <div id="main-content" class="container">
+        <div class="service-layout">
+            <div class="service-media">
+                <div class="service-image-container">
+                    <div class="badge-premium">
+                        <i class="fas fa-crown"></i> Elite Service
+                    </div>
+                    <img id="service-img" src="" alt="Service" class="service-image">
+                </div>
+
+                <div class="highlights">
+                    <div class="highlight-item"><i class="fas fa-shield-check"></i> 100% Satisfaction</div>
+                    <div class="highlight-item"><i class="fas fa-user-tie"></i> Expert Pros</div>
+                    <div class="highlight-item"><i class="fas fa-clock"></i> On-Time Service</div>
+                    <div class="highlight-item"><i class="fas fa-hand-sparkles"></i> Best Equipment</div>
+                </div>
+            </div>
+
+            <div class="service-info">
+                <span id="service-category" class="service-category">Loading...</span>
+                <h1 id="service-title" class="service-title">...</h1>
+
+                <div class="service-meta">
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <span id="service-rating">4.9</span>
+                    </div>
+                    <div class="badge-premium"
+                        style="position:static; padding: 0.3rem 0.8rem; background: var(--primary-soft); color: var(--primary-dark);">
+                        Verified
+                    </div>
+                </div>
+
+                <div class="price-container">
+                    <span id="price-current" class="price-current">...</span>
+                    <span id="price-old" class="price-old">...</span>
+                </div>
+
+                <p id="service-desc" class="description">...</p>
+
+                <div class="action-card">
+                    <h3 style="margin-bottom:1rem; font-weight:800;">Experience the Difference</h3>
+                    <p style="color:var(--text-muted); margin-bottom:1.5rem; font-size:0.95rem;">Join thousands of happy
+                        customers who trust Right Touch for their home needs.</p>
+                    <a href="#" id="open-app-btn" class="btn-app">
+                        <i class="fab fa-google-play"></i> Book Now in App
+                    </a>
+
+                    <div class="app-badges">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                            alt="Get it on Google Play">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
+                            alt="Download on App Store">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="protocol-section" class="section">
+            <h2 class="section-title"><i class="fas fa-list-check"></i> What's Included</h2>
+            <ul id="inclusion-list" class="check-list"></ul>
+        </div>
+
+        <div id="exclusion-section" class="section" style="display:none;">
+            <h2 class="section-title" style="color:#EF4444;"><i class="fas fa-circle-xmark"></i> What's Excluded</h2>
+            <ul id="exclusion-list" class="check-list"></ul>
+        </div>
+    </div>
+
+    <div id="error-view">
+        <i class="fas fa-search-minus"></i>
+        <h1 class="service-title">Service Not Found</h1>
+        <p class="description">The service you're looking for might have been moved or removed.</p>
+        <br>
+        <a href="/" class="btn-app">Back to Home</a>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="logo" style="justify-content:center; margin-bottom: 1.5rem;">
+                <i class="fas fa-hand-holding-heart"></i> Right Touch
+            </div>
+            <p class="footer-text">&copy; 2026 Right Touch Home Services. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const serviceId = window.location.pathname.split('/').pop();
+        const BASE_URL = 'https://right-touch.onrender.com/api';
+
+        async function fetchService() {
+            try {
+                const response = await fetch(`${BASE_URL}/user/getServiceById/${serviceId}`);
+                const data = await response.json();
+
+                if (data.success && data.result) {
+                    renderService(data.result);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                showError();
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function renderService(service) {
+            document.title = `Right Touch | ${service.serviceName || 'Service'}`;
+            document.getElementById('service-title').innerText = service.serviceName;
+            document.getElementById('service-category').innerText = service.categoryId?.category || 'Premium';
+            document.getElementById('service-desc').innerText = service.description;
+
+            const cost = service.serviceCost || 0;
+            const discountPct = service.serviceDiscountPercentage || 0;
+            const discountedPrice = cost - (cost * (discountPct / 100));
+
+            document.getElementById('price-current').innerText = `₹${Math.round(discountedPrice).toLocaleString()}`;
+            if (discountPct > 0) {
+                document.getElementById('price-old').innerText = `₹${cost.toLocaleString()}`;
+            } else {
+                document.getElementById('price-old').style.display = 'none';
+            }
+
+            // Images
+            const imgEl = document.getElementById('service-img');
+            if (service.serviceImages && service.serviceImages.length > 0) {
+                const imgPath = service.serviceImages[0];
+                imgEl.src = imgPath.startsWith('http') ? imgPath : `https://right-touch.onrender.com/${imgPath}`;
+            } else {
+                imgEl.src = 'https://images.unsplash.com/photo-1581094288338-2314dddb7bc3?q=80&w=1000&auto=format&fit=crop';
+            }
+
+            // Inclusions / Exclusions
+            const incList = document.getElementById('inclusion-list');
+            if (service.whatIncluded && service.whatIncluded.length > 0) {
+                incList.innerHTML = service.whatIncluded.map(item => `
+                    <li class="check-item in"><i class="fas fa-circle-check"></i> <span>${item}</span></li>
+                `).join('');
+            } else {
+                document.getElementById('protocol-section').style.display = 'none';
+            }
+
+            const excList = document.getElementById('exclusion-list');
+            if (service.whatNotIncluded && service.whatNotIncluded.length > 0) {
+                document.getElementById('exclusion-section').style.display = 'block';
+                excList.innerHTML = service.whatNotIncluded.map(item => `
+                    <li class="check-item out"><i class="fas fa-circle-xmark"></i> <span>${item}</span></li>
+                `).join('');
+            }
+
+            // Deep Link Setup
+            const deepLink = `righttouch://service/${serviceId}`;
+            const intentLink = `intent://service/${serviceId}#Intent;scheme=righttouch;package=com.siva2118.RIGHTTOUCH;end`;
+
+            document.getElementById('open-app-btn').href = intentLink;
+            document.getElementById('open-app-nav').href = intentLink;
+        }
+
+        function showError() {
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('error-view').style.display = 'flex';
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 500);
+        }
+
+        fetchService();
+    </script>
+</body>
+
+</html>

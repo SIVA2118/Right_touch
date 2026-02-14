@@ -50,20 +50,7 @@ export const addToCart = async (req, res) => {
 
     ensureCustomer(req);
     const { itemId, itemType, quantity = 1 } = req.body;
-    // sk
-    // Explicitly cast to ObjectId to ensure compatibility with indexes and findOneAndUpdate
-    let customerId;
-    let targetItemId;
-    try {
-      customerId = new mongoose.Types.ObjectId(req.user.userId);
-      targetItemId = new mongoose.Types.ObjectId(itemId);
-    } catch (castError) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid ID format",
-        result: { reason: castError.message },
-      });
-    }
+    const customerId = req.user.userId;
 
     if (!customerId) {
       return res.status(401).json({
@@ -99,8 +86,8 @@ export const addToCart = async (req, res) => {
 
     // Check if item exists
     const item = itemType === "product"
-      ? await Product.findById(targetItemId)
-      : await Service.findById(targetItemId);
+      ? await Product.findById(itemId)
+      : await Service.findById(itemId);
 
     if (!item) {
       return res.status(404).json({
@@ -112,29 +99,25 @@ export const addToCart = async (req, res) => {
 
     // Add or update cart item - increment quantity if exists, create if not
     let cartItem = await Cart.findOneAndUpdate(
-      { customerId, itemType, itemId: targetItemId },
+      { customerId, itemType, itemId },
       { $inc: { quantity } },
       { new: true, runValidators: true, upsert: false }
     );
 
     // If not found, insert new item
     if (!cartItem) {
-      console.log("[cartController] Item not found in cart, creating new entry for:", { customerId, itemType, targetItemId });
       try {
         cartItem = await Cart.create({
           customerId,
           itemType,
-          itemId: targetItemId,
+          itemId,
           quantity,
         });
-        console.log("[cartController] Cart.create result:", !!cartItem);
       } catch (createError) {
-        console.error("[cartController] Cart.create error:", createError);
         // Handle race condition: another request created it while we were checking
         if (createError.code === 11000) {
-          console.log("[cartController] Race condition detected, trying findOneAndUpdate again");
           cartItem = await Cart.findOneAndUpdate(
-            { customerId, itemType, itemId: targetItemId },
+            { customerId, itemType, itemId },
             { $set: { quantity } },
             { new: true, runValidators: true }
           );
@@ -146,7 +129,7 @@ export const addToCart = async (req, res) => {
 
     // Safety check: ensure cart item was created/updated
     if (!cartItem) {
-      console.error("CRITICAL: Cart item is null after all operations! Final check failed.");
+      console.error("CRITICAL: Cart item is null after all operations!");
       return res.status(500).json({
         success: false,
         message: "Failed to save cart item",
@@ -517,11 +500,11 @@ export const checkout = async (req, res) => {
     if (!addressSnapshot.name || !addressSnapshot.phone) {
       // Fetch user profile as fallback if name/phone still missing
       const userProfile = await User.findById(customerId).select("fname lname mobileNumber").session(session);
-
+      
       if (!addressSnapshot.name && userProfile) {
         addressSnapshot.name = [userProfile.fname, userProfile.lname].filter(Boolean).join(" ").trim();
       }
-
+      
       if (!addressSnapshot.phone && userProfile?.mobileNumber) {
         addressSnapshot.phone = userProfile.mobileNumber;
       }
