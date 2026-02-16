@@ -159,6 +159,11 @@ App.get("/service/:id", (req, res) => {
   res.sendFile(path.join(__dirname, "view", "service.html"));
 });
 
+// ✅ Product Landing Page (Serve HTML for share links)
+App.get("/product/:id", (req, res) => {
+  res.sendFile(path.join(__dirname, "view", "product.html"));
+});
+
 // Routes
 App.use("/api/user", UserRoutes);
 //sk
@@ -211,4 +216,3 @@ httpServer.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
   console.log(`🔌 Socket.IO ready for real-time notifications`);
 });
-

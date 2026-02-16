@@ -84,10 +84,24 @@ export const addToCart = async (req, res) => {
       });
     }
 
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      console.error(`[addToCart] Invalid ObjectId format: ${itemId}`);
+      return res.status(400).json({
+        success: false,
+        message: "Invalid item ID format",
+        result: {},
+      });
+    }
+
+    console.log(`[addToCart] Checking if ${itemType} exists with ID: ${itemId}`);
+
     // Check if item exists
     const item = itemType === "product"
       ? await Product.findById(itemId)
       : await Service.findById(itemId);
+
+    console.log(`[addToCart] ${itemType} found:`, item ? 'Yes' : 'No');
 
     if (!item) {
       return res.status(404).json({
@@ -98,30 +112,45 @@ export const addToCart = async (req, res) => {
     }
 
     // Add or update cart item - increment quantity if exists, create if not
+    console.log(`[addToCart] Attempting to add/update cart: customerId=${customerId}, itemType=${itemType}, itemId=${itemId}, quantity=${quantity}`);
+
     let cartItem = await Cart.findOneAndUpdate(
       { customerId, itemType, itemId },
       { $inc: { quantity } },
       { new: true, runValidators: true, upsert: false }
     );
 
+    console.log(`[addToCart] findOneAndUpdate result:`, cartItem ? 'Found and updated' : 'Not found');
+
     // If not found, insert new item
     if (!cartItem) {
       try {
+        console.log(`[addToCart] Creating new cart item with data:`, { customerId, itemType, itemId, quantity });
         cartItem = await Cart.create({
           customerId,
           itemType,
           itemId,
           quantity,
         });
+        console.log(`[addToCart] Cart item created successfully:`, cartItem?._id);
       } catch (createError) {
+        console.error(`[addToCart] Error creating cart item:`, createError);
         // Handle race condition: another request created it while we were checking
         if (createError.code === 11000) {
+          console.log(`[addToCart] Duplicate key error, attempting to update existing item`);
           cartItem = await Cart.findOneAndUpdate(
             { customerId, itemType, itemId },
             { $set: { quantity } },
             { new: true, runValidators: true }
           );
+          console.log(`[addToCart] Updated existing item after race condition:`, cartItem?._id);
         } else {
+          console.error(`[addToCart] Unhandled create error:`, {
+            code: createError.code,
+            message: createError.message,
+            name: createError.name,
+            errors: createError.errors
+          });
           throw createError;
         }
       }
@@ -130,12 +159,15 @@ export const addToCart = async (req, res) => {
     // Safety check: ensure cart item was created/updated
     if (!cartItem) {
       console.error("CRITICAL: Cart item is null after all operations!");
+      console.error("Debug info:", { customerId, itemType, itemId, quantity });
       return res.status(500).json({
         success: false,
         message: "Failed to save cart item",
         result: { reason: "Database operation failed. Please try again." },
       });
     }
+
+    console.log(`[addToCart] Success! Cart item ID: ${cartItem._id}`);
 
     res.status(200).json({
       success: true,
@@ -500,11 +532,11 @@ export const checkout = async (req, res) => {
     if (!addressSnapshot.name || !addressSnapshot.phone) {
       // Fetch user profile as fallback if name/phone still missing
       const userProfile = await User.findById(customerId).select("fname lname mobileNumber").session(session);
-      
+
       if (!addressSnapshot.name && userProfile) {
         addressSnapshot.name = [userProfile.fname, userProfile.lname].filter(Boolean).join(" ").trim();
       }
-      
+
       if (!addressSnapshot.phone && userProfile?.mobileNumber) {
         addressSnapshot.phone = userProfile.mobileNumber;
       }
